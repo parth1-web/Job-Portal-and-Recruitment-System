@@ -1,14 +1,17 @@
 ﻿using JobPortal.Domain.Entities;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace JobPortal.Infrastructure.Data.Configurations;
 
-public class CandidateConfiguration : IEntityTypeConfiguration<Candidate>
+public class CandidateConfiguration
+    : IEntityTypeConfiguration<Candidate>
 {
-    public void Configure(EntityTypeBuilder<Candidate> builder)
+    public void Configure(
+        EntityTypeBuilder<Candidate> builder)
     {
-        builder.ToTable("candidates");
+        builder.ToTable("Candidates");
 
         builder.HasKey(x => x.Id);
 
@@ -26,18 +29,21 @@ public class CandidateConfiguration : IEntityTypeConfiguration<Candidate>
         builder.Property(x => x.Location)
             .HasMaxLength(200);
 
+        builder.Property(x => x.ProfessionalTitle)
+            .HasMaxLength(150);
+
         builder.Property(x => x.Bio)
             .HasMaxLength(2000);
 
-        builder.Property(x => x.ProfileImageUrl)
+        builder.Property(x => x.ResumeUrl)
             .HasMaxLength(500);
-
-        builder.HasIndex(x => x.UserId)
-            .IsUnique();
 
         builder.HasOne(x => x.User)
             .WithOne(x => x.Candidate)
             .HasForeignKey<Candidate>(x => x.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasIndex(x => x.UserId)
+            .IsUnique();
     }
 }

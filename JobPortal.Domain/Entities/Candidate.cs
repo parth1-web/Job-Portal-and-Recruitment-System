@@ -14,21 +14,23 @@ public class Candidate : BaseEntity
 
     public string? Location { get; set; }
 
+    public string? ProfessionalTitle { get; set; }
+
     public string? Bio { get; set; }
 
-    public string? ProfileImageUrl { get; set; }
+    public string? ResumeUrl { get; set; }
 
     public User User { get; set; } = null!;
+
+    public ICollection<SavedJob> SavedJobs { get; set; }
+        = new List<SavedJob>();
 
     public ICollection<CandidateSkill> CandidateSkills { get; set; }
         = new List<CandidateSkill>();
 
-    public ICollection<Resume> Resumes { get; set; }
-        = new List<Resume>();
-
     public ICollection<JobApplication> JobApplications { get; set; }
         = new List<JobApplication>();
 
-    public ICollection<SavedJob> SavedJobs { get; set; }
-        = new List<SavedJob>();
+    public ICollection<Resume> Resumes { get; set; }
+        = new List<Resume>();
 }

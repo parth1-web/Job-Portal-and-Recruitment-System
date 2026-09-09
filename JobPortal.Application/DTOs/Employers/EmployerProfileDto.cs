@@ -1,10 +1,12 @@
-﻿using JobPortal.Domain.Common;
+﻿namespace JobPortal.Application.DTOs.Employers;
 
-namespace JobPortal.Domain.Entities;
-
-public class Employer : BaseEntity
+public class EmployerProfileDto
 {
+    public int Id { get; set; }
+
     public int UserId { get; set; }
+
+    public string Email { get; set; } = string.Empty;
 
     public string CompanyName { get; set; } = string.Empty;
 
@@ -17,9 +19,4 @@ public class Employer : BaseEntity
     public string? Location { get; set; }
 
     public string? CompanyLogoUrl { get; set; }
-
-    public User User { get; set; } = null!;
-
-    public ICollection<Job> Jobs { get; set; }
-        = new List<Job>();
 }
