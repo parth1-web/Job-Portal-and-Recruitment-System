@@ -1,5 +1,4 @@
-﻿
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using JobPortal.Application.DTOs.Jobs;
 using JobPortal.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -48,7 +47,7 @@ public class EmployerJobController : ControllerBase
                 new { id = job.Id },
                 job);
         }
-        catch (ArgumentException ex)
+        catch (InvalidOperationException ex)
         {
             return BadRequest(new
             {
@@ -73,7 +72,7 @@ public class EmployerJobController : ControllerBase
             return Unauthorized();
         }
 
-        var jobs = await _jobService.GetByEmployerIdAsync(
+        var jobs = await _jobService.GetEmployerJobsAsync(
             employerId.Value,
             cancellationToken);
 
@@ -97,9 +96,9 @@ public class EmployerJobController : ControllerBase
             return Unauthorized();
         }
 
-        var job = await _jobService.GetByIdForEmployerAsync(
-            id,
+        var job = await _jobService.GetEmployerJobByIdAsync(
             employerId.Value,
+            id,
             cancellationToken);
 
         if (job is null)
@@ -134,28 +133,22 @@ public class EmployerJobController : ControllerBase
         try
         {
             var job = await _jobService.UpdateAsync(
-                id,
                 employerId.Value,
+                id,
                 request,
                 cancellationToken);
 
+            if (job is null)
+            {
+                return NotFound(new
+                {
+                    message = "Job not found."
+                });
+            }
+
             return Ok(job);
         }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new
-            {
-                message = ex.Message
-            });
-        }
         catch (InvalidOperationException ex)
-        {
-            return BadRequest(new
-            {
-                message = ex.Message
-            });
-        }
-        catch (ArgumentException ex)
         {
             return BadRequest(new
             {
@@ -184,18 +177,19 @@ public class EmployerJobController : ControllerBase
         try
         {
             var job = await _jobService.PublishAsync(
-                id,
                 employerId.Value,
+                id,
                 cancellationToken);
 
-            return Ok(job);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new
+            if (job is null)
             {
-                message = ex.Message
-            });
+                return NotFound(new
+                {
+                    message = "Job not found."
+                });
+            }
+
+            return Ok(job);
         }
         catch (InvalidOperationException ex)
         {
@@ -226,18 +220,19 @@ public class EmployerJobController : ControllerBase
         try
         {
             var job = await _jobService.CloseAsync(
-                id,
                 employerId.Value,
+                id,
                 cancellationToken);
 
-            return Ok(job);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new
+            if (job is null)
             {
-                message = ex.Message
-            });
+                return NotFound(new
+                {
+                    message = "Job not found."
+                });
+            }
+
+            return Ok(job);
         }
         catch (InvalidOperationException ex)
         {
@@ -265,4 +260,3 @@ public class EmployerJobController : ControllerBase
         return employerId;
     }
 }
-

@@ -1,5 +1,4 @@
-﻿
-using JobPortal.Application.DTOs.Jobs;
+﻿using JobPortal.Application.DTOs.Jobs;
 using JobPortal.Application.Interfaces;
 using JobPortal.Domain.Entities;
 using JobPortal.Domain.Enums;
@@ -15,144 +14,94 @@ public class JobService : IJobService
         _jobRepository = jobRepository;
     }
 
-    // =========================================================
-    // CREATE JOB
-    // =========================================================
-
     public async Task<JobDto> CreateAsync(
         int employerId,
-        CreateJobDto request,
+        CreateJobDto dto,
         CancellationToken cancellationToken = default)
     {
         ValidateJobData(
-            request.Title,
-            request.Description,
-            request.SalaryMin,
-            request.SalaryMax,
-            request.ApplicationDeadline);
+            dto.Title,
+            dto.Description,
+            dto.SalaryMin,
+            dto.SalaryMax,
+            dto.ApplicationDeadline);
 
         var job = new Job
         {
             EmployerId = employerId,
-
-            CompanyId = request.CompanyId,
-
-            CategoryId = request.CategoryId,
-
-            Title = request.Title.Trim(),
-
-            Description = request.Description.Trim(),
-
-            Requirements = string.IsNullOrWhiteSpace(request.Requirements)
-                ? null
-                : request.Requirements.Trim(),
-
-            SalaryMin = request.SalaryMin,
-
-            SalaryMax = request.SalaryMax,
-
-            EmploymentType = request.EmploymentType,
-
-            WorkMode = request.WorkMode,
-
-            Location = string.IsNullOrWhiteSpace(request.Location)
-                ? null
-                : request.Location.Trim(),
-
-            ApplicationDeadline = request.ApplicationDeadline,
-
-            Status = JobStatus.Draft,
-
-            CreatedAt = DateTime.UtcNow,
-
-            UpdatedAt = DateTime.UtcNow
+            CompanyId = dto.CompanyId,
+            CategoryId = dto.CategoryId,
+            Title = dto.Title.Trim(),
+            Description = dto.Description.Trim(),
+            Requirements = dto.Requirements?.Trim(),
+            SalaryMin = dto.SalaryMin,
+            SalaryMax = dto.SalaryMax,
+            EmploymentType = dto.EmploymentType,
+            WorkMode = dto.WorkMode,
+            Location = dto.Location?.Trim(),
+            ApplicationDeadline = dto.ApplicationDeadline,
+            Status = JobStatus.Draft
         };
 
         await _jobRepository.AddAsync(
             job,
             cancellationToken);
 
-        // Reload the entity with Employer, Company and Category
-        // navigation properties populated.
-        var createdJob = await _jobRepository.GetByIdForEmployerAsync(
-            job.Id,
-            employerId,
-            cancellationToken);
-
-        if (createdJob is null)
-        {
-            throw new InvalidOperationException(
-                "The job was created but could not be retrieved.");
-        }
-
-        return MapToDto(createdJob);
+        return MapToDto(job);
     }
 
-    // =========================================================
-    // GET EMPLOYER JOBS
-    // =========================================================
-
-    public async Task<IReadOnlyList<JobListDto>> GetByEmployerIdAsync(
+    public async Task<IReadOnlyList<JobListDto>> GetEmployerJobsAsync(
         int employerId,
         CancellationToken cancellationToken = default)
     {
-        var jobs = await _jobRepository.GetByEmployerIdAsync(
-            employerId,
-            cancellationToken);
+        var jobs =
+            await _jobRepository.GetByEmployerIdAsync(
+                employerId,
+                cancellationToken);
 
         return jobs
             .Select(MapToListDto)
             .ToList();
     }
 
-    // =========================================================
-    // GET SINGLE JOB
-    // =========================================================
-
-    public async Task<JobDto?> GetByIdForEmployerAsync(
-        int jobId,
+    public async Task<JobDto?> GetEmployerJobByIdAsync(
         int employerId,
+        int jobId,
         CancellationToken cancellationToken = default)
     {
-        var job = await _jobRepository.GetByIdForEmployerAsync(
-            jobId,
-            employerId,
-            cancellationToken);
+        var job =
+            await _jobRepository.GetByIdForEmployerAsync(
+                jobId,
+                employerId,
+                cancellationToken);
+
+        return job is null
+            ? null
+            : MapToDto(job);
+    }
+
+    public async Task<JobDto?> UpdateAsync(
+        int employerId,
+        int jobId,
+        UpdateJobDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        ValidateJobData(
+            dto.Title,
+            dto.Description,
+            dto.SalaryMin,
+            dto.SalaryMax,
+            dto.ApplicationDeadline);
+
+        var job =
+            await _jobRepository.GetByIdForEmployerAsync(
+                jobId,
+                employerId,
+                cancellationToken);
 
         if (job is null)
         {
             return null;
-        }
-
-        return MapToDto(job);
-    }
-
-    // =========================================================
-    // UPDATE JOB
-    // =========================================================
-
-    public async Task<JobDto> UpdateAsync(
-        int jobId,
-        int employerId,
-        UpdateJobDto request,
-        CancellationToken cancellationToken = default)
-    {
-        ValidateJobData(
-            request.Title,
-            request.Description,
-            request.SalaryMin,
-            request.SalaryMax,
-            request.ApplicationDeadline);
-
-        var job = await _jobRepository.GetByIdForEmployerAsync(
-            jobId,
-            employerId,
-            cancellationToken);
-
-        if (job is null)
-        {
-            throw new KeyNotFoundException(
-                "Job not found or you do not have permission to manage this job.");
         }
 
         if (job.Status != JobStatus.Draft)
@@ -161,32 +110,17 @@ public class JobService : IJobService
                 "Only draft jobs can be updated.");
         }
 
-        job.CompanyId = request.CompanyId;
-
-        job.CategoryId = request.CategoryId;
-
-        job.Title = request.Title.Trim();
-
-        job.Description = request.Description.Trim();
-
-        job.Requirements = string.IsNullOrWhiteSpace(request.Requirements)
-            ? null
-            : request.Requirements.Trim();
-
-        job.SalaryMin = request.SalaryMin;
-
-        job.SalaryMax = request.SalaryMax;
-
-        job.EmploymentType = request.EmploymentType;
-
-        job.WorkMode = request.WorkMode;
-
-        job.Location = string.IsNullOrWhiteSpace(request.Location)
-            ? null
-            : request.Location.Trim();
-
-        job.ApplicationDeadline = request.ApplicationDeadline;
-
+        job.CompanyId = dto.CompanyId;
+        job.CategoryId = dto.CategoryId;
+        job.Title = dto.Title.Trim();
+        job.Description = dto.Description.Trim();
+        job.Requirements = dto.Requirements?.Trim();
+        job.SalaryMin = dto.SalaryMin;
+        job.SalaryMax = dto.SalaryMax;
+        job.EmploymentType = dto.EmploymentType;
+        job.WorkMode = dto.WorkMode;
+        job.Location = dto.Location?.Trim();
+        job.ApplicationDeadline = dto.ApplicationDeadline;
         job.UpdatedAt = DateTime.UtcNow;
 
         await _jobRepository.UpdateAsync(
@@ -196,24 +130,20 @@ public class JobService : IJobService
         return MapToDto(job);
     }
 
-    // =========================================================
-    // PUBLISH JOB
-    // =========================================================
-
-    public async Task<JobDto> PublishAsync(
-        int jobId,
+    public async Task<JobDto?> PublishAsync(
         int employerId,
+        int jobId,
         CancellationToken cancellationToken = default)
     {
-        var job = await _jobRepository.GetByIdForEmployerAsync(
-            jobId,
-            employerId,
-            cancellationToken);
+        var job =
+            await _jobRepository.GetByIdForEmployerAsync(
+                jobId,
+                employerId,
+                cancellationToken);
 
         if (job is null)
         {
-            throw new KeyNotFoundException(
-                "Job not found or you do not have permission to manage this job.");
+            return null;
         }
 
         if (job.Status != JobStatus.Draft)
@@ -225,11 +155,10 @@ public class JobService : IJobService
         if (job.ApplicationDeadline <= DateTime.UtcNow)
         {
             throw new InvalidOperationException(
-                "A job with an expired application deadline cannot be published.");
+                "Application deadline must be in the future.");
         }
 
         job.Status = JobStatus.Published;
-
         job.UpdatedAt = DateTime.UtcNow;
 
         await _jobRepository.UpdateAsync(
@@ -239,24 +168,20 @@ public class JobService : IJobService
         return MapToDto(job);
     }
 
-    // =========================================================
-    // CLOSE JOB
-    // =========================================================
-
-    public async Task<JobDto> CloseAsync(
-        int jobId,
+    public async Task<JobDto?> CloseAsync(
         int employerId,
+        int jobId,
         CancellationToken cancellationToken = default)
     {
-        var job = await _jobRepository.GetByIdForEmployerAsync(
-            jobId,
-            employerId,
-            cancellationToken);
+        var job =
+            await _jobRepository.GetByIdForEmployerAsync(
+                jobId,
+                employerId,
+                cancellationToken);
 
         if (job is null)
         {
-            throw new KeyNotFoundException(
-                "Job not found or you do not have permission to manage this job.");
+            return null;
         }
 
         if (job.Status != JobStatus.Published)
@@ -266,7 +191,6 @@ public class JobService : IJobService
         }
 
         job.Status = JobStatus.Closed;
-
         job.UpdatedAt = DateTime.UtcNow;
 
         await _jobRepository.UpdateAsync(
@@ -276,9 +200,35 @@ public class JobService : IJobService
         return MapToDto(job);
     }
 
-    // =========================================================
-    // VALIDATION
-    // =========================================================
+    public async Task<IReadOnlyList<JobListDto>> GetPublishedJobsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var jobs =
+            await _jobRepository.GetPublishedJobsAsync(
+                cancellationToken);
+
+        return jobs
+            .Select(MapToListDto)
+            .ToList();
+    }
+
+    public async Task<JobDto?> GetPublishedJobByIdAsync(
+        int jobId,
+        CancellationToken cancellationToken = default)
+    {
+        var job =
+            await _jobRepository.GetByIdAsync(
+                jobId,
+                cancellationToken);
+
+        if (job is null ||
+            job.Status != JobStatus.Published)
+        {
+            return null;
+        }
+
+        return MapToDto(job);
+    }
 
     private static void ValidateJobData(
         string title,
@@ -289,37 +239,27 @@ public class JobService : IJobService
     {
         if (string.IsNullOrWhiteSpace(title))
         {
-            throw new ArgumentException(
+            throw new InvalidOperationException(
                 "Job title is required.");
-        }
-
-        if (title.Trim().Length > 200)
-        {
-            throw new ArgumentException(
-                "Job title cannot exceed 200 characters.");
         }
 
         if (string.IsNullOrWhiteSpace(description))
         {
-            throw new ArgumentException(
+            throw new InvalidOperationException(
                 "Job description is required.");
         }
 
-        if (description.Trim().Length > 10000)
+        if (salaryMin.HasValue &&
+            salaryMin.Value < 0)
         {
-            throw new ArgumentException(
-                "Job description cannot exceed 10,000 characters.");
-        }
-
-        if (salaryMin.HasValue && salaryMin.Value < 0)
-        {
-            throw new ArgumentException(
+            throw new InvalidOperationException(
                 "Minimum salary cannot be negative.");
         }
 
-        if (salaryMax.HasValue && salaryMax.Value < 0)
+        if (salaryMax.HasValue &&
+            salaryMax.Value < 0)
         {
-            throw new ArgumentException(
+            throw new InvalidOperationException(
                 "Maximum salary cannot be negative.");
         }
 
@@ -327,91 +267,60 @@ public class JobService : IJobService
             salaryMax.HasValue &&
             salaryMin.Value > salaryMax.Value)
         {
-            throw new ArgumentException(
+            throw new InvalidOperationException(
                 "Minimum salary cannot be greater than maximum salary.");
         }
 
         if (applicationDeadline <= DateTime.UtcNow)
         {
-            throw new ArgumentException(
+            throw new InvalidOperationException(
                 "Application deadline must be in the future.");
         }
     }
-
-    // =========================================================
-    // ENTITY → DETAIL DTO
-    // =========================================================
 
     private static JobDto MapToDto(Job job)
     {
         return new JobDto
         {
             Id = job.Id,
-
             EmployerId = job.EmployerId,
-
             CompanyId = job.CompanyId,
-
-            CompanyName = job.Company?.Name ?? string.Empty,
-
+            CompanyName = job.Company.Name,
             CategoryId = job.CategoryId,
-
-            CategoryName = job.Category?.Name ?? string.Empty,
-
+            CategoryName = job.Category.Name,
             Title = job.Title,
-
             Description = job.Description,
-
             Requirements = job.Requirements,
-
             SalaryMin = job.SalaryMin,
-
             SalaryMax = job.SalaryMax,
-
             EmploymentType = job.EmploymentType,
-
             WorkMode = job.WorkMode,
-
             Location = job.Location,
-
             ApplicationDeadline = job.ApplicationDeadline,
-
             Status = job.Status,
-
             CreatedAt = job.CreatedAt,
-
             UpdatedAt = job.UpdatedAt
         };
     }
-
-    // =========================================================
-    // ENTITY → LIST DTO
-    // =========================================================
 
     private static JobListDto MapToListDto(Job job)
     {
         return new JobListDto
         {
             Id = job.Id,
-
-            CompanyName = job.Company?.Name ?? string.Empty,
-
-            CategoryName = job.Category?.Name ?? string.Empty,
-
+            CompanyId = job.CompanyId,
+            CompanyName = job.Company.Name,
+            CategoryId = job.CategoryId,
+            CategoryName = job.Category.Name,
             Title = job.Title,
-
+            SalaryMin = job.SalaryMin,
+            SalaryMax = job.SalaryMax,
             EmploymentType = job.EmploymentType,
-
             WorkMode = job.WorkMode,
-
             Location = job.Location,
-
             ApplicationDeadline = job.ApplicationDeadline,
-
             Status = job.Status,
-
             CreatedAt = job.CreatedAt
         };
     }
 }
-

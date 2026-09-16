@@ -1,5 +1,5 @@
-﻿
-using JobPortal.Domain.Entities;
+﻿using JobPortal.Domain.Entities;
+
 
 namespace JobPortal.Application.Interfaces;
 
@@ -18,6 +18,9 @@ public interface IJobRepository
         int employerId,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<Job>> GetPublishedJobsAsync(
+        CancellationToken cancellationToken = default);
+
     Task AddAsync(
         Job job,
         CancellationToken cancellationToken = default);
@@ -26,4 +29,3 @@ public interface IJobRepository
         Job job,
         CancellationToken cancellationToken = default);
 }
-

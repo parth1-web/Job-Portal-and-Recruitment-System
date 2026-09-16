@@ -1,6 +1,6 @@
-﻿
-using JobPortal.Application.Interfaces;
+﻿using JobPortal.Application.Interfaces;
 using JobPortal.Domain.Entities;
+using JobPortal.Domain.Enums;
 using JobPortal.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,9 +20,10 @@ public class JobRepository : IJobRepository
         CancellationToken cancellationToken = default)
     {
         return await _context.Jobs
-            .Include(x => x.Employer)
+            .AsNoTracking()
             .Include(x => x.Company)
             .Include(x => x.Category)
+            .Include(x => x.Employer)
             .FirstOrDefaultAsync(
                 x => x.Id == id,
                 cancellationToken);
@@ -34,9 +35,9 @@ public class JobRepository : IJobRepository
         CancellationToken cancellationToken = default)
     {
         return await _context.Jobs
-            .Include(x => x.Employer)
             .Include(x => x.Company)
             .Include(x => x.Category)
+            .Include(x => x.Employer)
             .FirstOrDefaultAsync(
                 x => x.Id == jobId &&
                      x.EmployerId == employerId,
@@ -48,7 +49,22 @@ public class JobRepository : IJobRepository
         CancellationToken cancellationToken = default)
     {
         return await _context.Jobs
+            .AsNoTracking()
+            .Include(x => x.Company)
+            .Include(x => x.Category)
             .Where(x => x.EmployerId == employerId)
+            .OrderByDescending(x => x.CreatedAt)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Job>> GetPublishedJobsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Jobs
+            .AsNoTracking()
+            .Include(x => x.Company)
+            .Include(x => x.Category)
+            .Where(x => x.Status == JobStatus.Published)
             .OrderByDescending(x => x.CreatedAt)
             .ToListAsync(cancellationToken);
     }
@@ -57,22 +73,15 @@ public class JobRepository : IJobRepository
         Job job,
         CancellationToken cancellationToken = default)
     {
-        await _context.Jobs.AddAsync(
-            job,
-            cancellationToken);
-
-        await _context.SaveChangesAsync(
-            cancellationToken);
+        await _context.Jobs.AddAsync(job, cancellationToken);
     }
 
-    public async Task UpdateAsync(
+    public Task UpdateAsync(
         Job job,
         CancellationToken cancellationToken = default)
     {
         _context.Jobs.Update(job);
 
-        await _context.SaveChangesAsync(
-            cancellationToken);
+        return Task.CompletedTask;
     }
 }
-
