@@ -46,6 +46,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICandidateService, CandidateService>();
 builder.Services.AddScoped<IEmployerService, EmployerService>();
 builder.Services.AddScoped<IJobService, JobService>();
+builder.Services.AddScoped<IEmployerRepository, EmployerRepository>();
 
 builder.Services.AddInfrastructure(
     builder.Configuration);

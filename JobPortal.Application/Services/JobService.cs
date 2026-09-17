@@ -8,14 +8,18 @@ namespace JobPortal.Application.Services;
 public class JobService : IJobService
 {
     private readonly IJobRepository _jobRepository;
+    private readonly IEmployerRepository _employerRepository;
 
-    public JobService(IJobRepository jobRepository)
+    public JobService(
+        IJobRepository jobRepository,
+        IEmployerRepository employerRepository)
     {
         _jobRepository = jobRepository;
+        _employerRepository = employerRepository;
     }
 
     public async Task<JobDto> CreateAsync(
-        int employerId,
+        int userId,
         CreateJobDto dto,
         CancellationToken cancellationToken = default)
     {
@@ -26,9 +30,20 @@ public class JobService : IJobService
             dto.SalaryMax,
             dto.ApplicationDeadline);
 
+        var employer =
+            await _employerRepository.GetByUserIdAsync(
+                userId,
+                cancellationToken);
+
+        if (employer is null)
+        {
+            throw new InvalidOperationException(
+                "Employer profile was not found for the authenticated user.");
+        }
+
         var job = new Job
         {
-            EmployerId = employerId,
+            EmployerId = employer.Id,
             CompanyId = dto.CompanyId,
             CategoryId = dto.CategoryId,
             Title = dto.Title.Trim(),
@@ -47,16 +62,37 @@ public class JobService : IJobService
             job,
             cancellationToken);
 
-        return MapToDto(job);
+        var createdJob = await _jobRepository.GetByIdAsync(
+            job.Id,
+            cancellationToken);
+
+        if (createdJob is null)
+        {
+            throw new InvalidOperationException(
+                "The job could not be retrieved after creation.");
+        }
+
+        return MapToDto(createdJob);
     }
 
     public async Task<IReadOnlyList<JobListDto>> GetEmployerJobsAsync(
-        int employerId,
+        int userId,
         CancellationToken cancellationToken = default)
     {
+        var employer =
+            await _employerRepository.GetByUserIdAsync(
+                userId,
+                cancellationToken);
+
+        if (employer is null)
+        {
+            throw new InvalidOperationException(
+                "Employer profile was not found for the authenticated user.");
+        }
+
         var jobs =
             await _jobRepository.GetByEmployerIdAsync(
-                employerId,
+                employer.Id,
                 cancellationToken);
 
         return jobs
@@ -65,14 +101,24 @@ public class JobService : IJobService
     }
 
     public async Task<JobDto?> GetEmployerJobByIdAsync(
-        int employerId,
+        int userId,
         int jobId,
         CancellationToken cancellationToken = default)
     {
+        var employer =
+            await _employerRepository.GetByUserIdAsync(
+                userId,
+                cancellationToken);
+
+        if (employer is null)
+        {
+            return null;
+        }
+
         var job =
             await _jobRepository.GetByIdForEmployerAsync(
                 jobId,
-                employerId,
+                employer.Id,
                 cancellationToken);
 
         return job is null
@@ -81,7 +127,7 @@ public class JobService : IJobService
     }
 
     public async Task<JobDto?> UpdateAsync(
-        int employerId,
+        int userId,
         int jobId,
         UpdateJobDto dto,
         CancellationToken cancellationToken = default)
@@ -93,10 +139,20 @@ public class JobService : IJobService
             dto.SalaryMax,
             dto.ApplicationDeadline);
 
+        var employer =
+            await _employerRepository.GetByUserIdAsync(
+                userId,
+                cancellationToken);
+
+        if (employer is null)
+        {
+            return null;
+        }
+
         var job =
             await _jobRepository.GetByIdForEmployerAsync(
                 jobId,
-                employerId,
+                employer.Id,
                 cancellationToken);
 
         if (job is null)
@@ -131,14 +187,24 @@ public class JobService : IJobService
     }
 
     public async Task<JobDto?> PublishAsync(
-        int employerId,
+        int userId,
         int jobId,
         CancellationToken cancellationToken = default)
     {
+        var employer =
+            await _employerRepository.GetByUserIdAsync(
+                userId,
+                cancellationToken);
+
+        if (employer is null)
+        {
+            return null;
+        }
+
         var job =
             await _jobRepository.GetByIdForEmployerAsync(
                 jobId,
-                employerId,
+                employer.Id,
                 cancellationToken);
 
         if (job is null)
@@ -169,14 +235,24 @@ public class JobService : IJobService
     }
 
     public async Task<JobDto?> CloseAsync(
-        int employerId,
+        int userId,
         int jobId,
         CancellationToken cancellationToken = default)
     {
+        var employer =
+            await _employerRepository.GetByUserIdAsync(
+                userId,
+                cancellationToken);
+
+        if (employer is null)
+        {
+            return null;
+        }
+
         var job =
             await _jobRepository.GetByIdForEmployerAsync(
                 jobId,
-                employerId,
+                employer.Id,
                 cancellationToken);
 
         if (job is null)

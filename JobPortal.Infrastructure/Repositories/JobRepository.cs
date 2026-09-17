@@ -73,15 +73,21 @@ public class JobRepository : IJobRepository
         Job job,
         CancellationToken cancellationToken = default)
     {
-        await _context.Jobs.AddAsync(job, cancellationToken);
+        await _context.Jobs.AddAsync(
+            job,
+            cancellationToken);
+
+        await _context.SaveChangesAsync(
+            cancellationToken);
     }
 
-    public Task UpdateAsync(
+    public async Task UpdateAsync(
         Job job,
         CancellationToken cancellationToken = default)
     {
         _context.Jobs.Update(job);
 
-        return Task.CompletedTask;
+        await _context.SaveChangesAsync(
+            cancellationToken);
     }
 }
