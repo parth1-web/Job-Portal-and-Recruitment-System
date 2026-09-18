@@ -25,4 +25,13 @@ public class CreateJobDto
     public string? Location { get; set; }
 
     public DateTime ApplicationDeadline { get; set; }
+
+    public List<CreateJobSkillDto> Skills { get; set; } = new();
+}
+
+public class CreateJobSkillDto
+{
+    public int SkillId { get; set; }
+
+    public bool IsRequired { get; set; }
 }

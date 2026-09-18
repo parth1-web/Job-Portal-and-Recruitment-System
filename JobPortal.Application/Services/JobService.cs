@@ -9,13 +9,19 @@ public class JobService : IJobService
 {
     private readonly IJobRepository _jobRepository;
     private readonly IEmployerRepository _employerRepository;
+    private readonly ISkillRepository _skillRepository;
+    private readonly IJobSkillRepository _jobSkillRepository;
 
     public JobService(
         IJobRepository jobRepository,
-        IEmployerRepository employerRepository)
+        IEmployerRepository employerRepository,
+        ISkillRepository skillRepository,
+        IJobSkillRepository jobSkillRepository)
     {
         _jobRepository = jobRepository;
         _employerRepository = employerRepository;
+        _skillRepository = skillRepository;
+        _jobSkillRepository = jobSkillRepository;
     }
 
     public async Task<JobDto> CreateAsync(
@@ -41,6 +47,19 @@ public class JobService : IJobService
                 "Employer profile was not found for the authenticated user.");
         }
 
+        if (dto.Skills?.Any() == true)
+        {
+            var skillIds = dto.Skills.Select(s => s.SkillId).Distinct().ToList();
+            var skills = await _skillRepository.GetByIdsAsync(skillIds, cancellationToken);
+            
+            if (skills.Count != skillIds.Count)
+            {
+                var missingIds = skillIds.Except(skills.Select(s => s.Id));
+                throw new InvalidOperationException(
+                    $"The following skill IDs were not found: {string.Join(", ", missingIds)}");
+            }
+        }
+
         var job = new Job
         {
             EmployerId = employer.Id,
@@ -61,6 +80,18 @@ public class JobService : IJobService
         await _jobRepository.AddAsync(
             job,
             cancellationToken);
+
+        if (dto.Skills?.Any() == true)
+        {
+            var jobSkills = dto.Skills.Select(s => new JobSkill
+            {
+                JobId = job.Id,
+                SkillId = s.SkillId,
+                IsRequired = s.IsRequired
+            });
+
+            await _jobSkillRepository.AddRangeAsync(jobSkills, cancellationToken);
+        }
 
         var createdJob = await _jobRepository.GetByIdAsync(
             job.Id,
@@ -166,6 +197,19 @@ public class JobService : IJobService
                 "Only draft jobs can be updated.");
         }
 
+        if (dto.Skills?.Any() == true)
+        {
+            var skillIds = dto.Skills.Select(s => s.SkillId).Distinct().ToList();
+            var skills = await _skillRepository.GetByIdsAsync(skillIds, cancellationToken);
+
+            if (skills.Count != skillIds.Count)
+            {
+                var missingIds = skillIds.Except(skills.Select(s => s.Id));
+                throw new InvalidOperationException(
+                    $"The following skill IDs were not found: {string.Join(", ", missingIds)}");
+            }
+        }
+
         job.CompanyId = dto.CompanyId;
         job.CategoryId = dto.CategoryId;
         job.Title = dto.Title.Trim();
@@ -182,6 +226,23 @@ public class JobService : IJobService
         await _jobRepository.UpdateAsync(
             job,
             cancellationToken);
+
+        if (dto.Skills != null)
+        {
+            await _jobSkillRepository.DeleteByJobIdAsync(jobId, cancellationToken);
+
+            if (dto.Skills.Any())
+            {
+                var jobSkills = dto.Skills.Select(s => new JobSkill
+                {
+                    JobId = job.Id,
+                    SkillId = s.SkillId,
+                    IsRequired = s.IsRequired
+                });
+
+                await _jobSkillRepository.AddRangeAsync(jobSkills, cancellationToken);
+            }
+        }
 
         return MapToDto(job);
     }
