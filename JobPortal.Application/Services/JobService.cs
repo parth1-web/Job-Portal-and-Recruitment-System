@@ -1,4 +1,5 @@
 ﻿using JobPortal.Application.DTOs.Jobs;
+using JobPortal.Application.DTOs.Common;
 using JobPortal.Application.Interfaces;
 using JobPortal.Domain.Entities;
 using JobPortal.Domain.Enums;
@@ -49,7 +50,7 @@ public class JobService : IJobService
 
         if (dto.Skills?.Any() == true)
         {
-            var skillIds = dto.Skills.Select(s => s.SkillId).Distinct().ToList();
+            var skillIds = dto.Skills.Select(s => int.Parse(s.SkillId)).Distinct().ToList();
             var skills = await _skillRepository.GetByIdsAsync(skillIds, cancellationToken);
             
             if (skills.Count != skillIds.Count)
@@ -63,18 +64,20 @@ public class JobService : IJobService
         var job = new Job
         {
             EmployerId = employer.Id,
-            CompanyId = dto.CompanyId,
-            CategoryId = dto.CategoryId,
+            CompanyId = int.TryParse(dto.CompanyId, out var cid) ? cid : null,
+            CategoryId = int.TryParse(dto.CategoryId, out var catid) ? catid : null,
             Title = dto.Title.Trim(),
             Description = dto.Description.Trim(),
             Requirements = dto.Requirements?.Trim(),
             SalaryMin = dto.SalaryMin,
             SalaryMax = dto.SalaryMax,
-            EmploymentType = dto.EmploymentType,
-            WorkMode = dto.WorkMode,
+            EmploymentType = ParseEmploymentType(dto.EmploymentType),
+            WorkMode = ParseWorkMode(dto.WorkMode),
             Location = dto.Location?.Trim(),
-            ApplicationDeadline = dto.ApplicationDeadline,
-            Status = JobStatus.Draft
+            ApplicationDeadline = NormalizeToUtc(dto.ApplicationDeadline) ?? DateTime.UtcNow.AddDays(30),
+            Status = ParseJobStatus(dto.Status),
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
         };
 
         await _jobRepository.AddAsync(
@@ -86,7 +89,7 @@ public class JobService : IJobService
             var jobSkills = dto.Skills.Select(s => new JobSkill
             {
                 JobId = job.Id,
-                SkillId = s.SkillId,
+                SkillId = int.Parse(s.SkillId),
                 IsRequired = s.IsRequired
             });
 
@@ -133,7 +136,7 @@ public class JobService : IJobService
 
     public async Task<JobDto?> GetEmployerJobByIdAsync(
         int userId,
-        int jobId,
+        string jobId,
         CancellationToken cancellationToken = default)
     {
         var employer =
@@ -146,9 +149,14 @@ public class JobService : IJobService
             return null;
         }
 
+        if (!int.TryParse(jobId, out var jobIdInt))
+        {
+            return null;
+        }
+
         var job =
             await _jobRepository.GetByIdForEmployerAsync(
-                jobId,
+                jobIdInt,
                 employer.Id,
                 cancellationToken);
 
@@ -159,7 +167,7 @@ public class JobService : IJobService
 
     public async Task<JobDto?> UpdateAsync(
         int userId,
-        int jobId,
+        string jobId,
         UpdateJobDto dto,
         CancellationToken cancellationToken = default)
     {
@@ -180,9 +188,14 @@ public class JobService : IJobService
             return null;
         }
 
+        if (!int.TryParse(jobId, out var jobIdInt))
+        {
+            return null;
+        }
+
         var job =
             await _jobRepository.GetByIdForEmployerAsync(
-                jobId,
+                jobIdInt,
                 employer.Id,
                 cancellationToken);
 
@@ -199,7 +212,7 @@ public class JobService : IJobService
 
         if (dto.Skills?.Any() == true)
         {
-            var skillIds = dto.Skills.Select(s => s.SkillId).Distinct().ToList();
+            var skillIds = dto.Skills.Select(s => int.Parse(s.SkillId)).Distinct().ToList();
             var skills = await _skillRepository.GetByIdsAsync(skillIds, cancellationToken);
 
             if (skills.Count != skillIds.Count)
@@ -210,17 +223,17 @@ public class JobService : IJobService
             }
         }
 
-        job.CompanyId = dto.CompanyId;
-        job.CategoryId = dto.CategoryId;
+        job.CompanyId = int.TryParse(dto.CompanyId, out var cid) ? cid : null;
+        job.CategoryId = int.TryParse(dto.CategoryId, out var catid) ? catid : null;
         job.Title = dto.Title.Trim();
         job.Description = dto.Description.Trim();
         job.Requirements = dto.Requirements?.Trim();
         job.SalaryMin = dto.SalaryMin;
         job.SalaryMax = dto.SalaryMax;
-        job.EmploymentType = dto.EmploymentType;
-        job.WorkMode = dto.WorkMode;
+        job.EmploymentType = ParseEmploymentType(dto.EmploymentType);
+        job.WorkMode = ParseWorkMode(dto.WorkMode);
         job.Location = dto.Location?.Trim();
-        job.ApplicationDeadline = dto.ApplicationDeadline;
+        job.ApplicationDeadline = NormalizeToUtc(dto.ApplicationDeadline) ?? DateTime.UtcNow.AddDays(30);
         job.UpdatedAt = DateTime.UtcNow;
 
         await _jobRepository.UpdateAsync(
@@ -229,14 +242,14 @@ public class JobService : IJobService
 
         if (dto.Skills != null)
         {
-            await _jobSkillRepository.DeleteByJobIdAsync(jobId, cancellationToken);
+            await _jobSkillRepository.DeleteByJobIdAsync(jobIdInt, cancellationToken);
 
             if (dto.Skills.Any())
             {
                 var jobSkills = dto.Skills.Select(s => new JobSkill
                 {
                     JobId = job.Id,
-                    SkillId = s.SkillId,
+                    SkillId = int.Parse(s.SkillId),
                     IsRequired = s.IsRequired
                 });
 
@@ -249,7 +262,7 @@ public class JobService : IJobService
 
     public async Task<JobDto?> PublishAsync(
         int userId,
-        int jobId,
+        string jobId,
         CancellationToken cancellationToken = default)
     {
         var employer =
@@ -262,9 +275,14 @@ public class JobService : IJobService
             return null;
         }
 
+        if (!int.TryParse(jobId, out var jobIdInt))
+        {
+            return null;
+        }
+
         var job =
             await _jobRepository.GetByIdForEmployerAsync(
-                jobId,
+                jobIdInt,
                 employer.Id,
                 cancellationToken);
 
@@ -297,7 +315,7 @@ public class JobService : IJobService
 
     public async Task<JobDto?> CloseAsync(
         int userId,
-        int jobId,
+        string jobId,
         CancellationToken cancellationToken = default)
     {
         var employer =
@@ -310,9 +328,14 @@ public class JobService : IJobService
             return null;
         }
 
+        if (!int.TryParse(jobId, out var jobIdInt))
+        {
+            return null;
+        }
+
         var job =
             await _jobRepository.GetByIdForEmployerAsync(
-                jobId,
+                jobIdInt,
                 employer.Id,
                 cancellationToken);
 
@@ -337,25 +360,33 @@ public class JobService : IJobService
         return MapToDto(job);
     }
 
-    public async Task<IReadOnlyList<JobListDto>> GetPublishedJobsAsync(
+    public async Task<PagedResult<JobListDto>> GetPublishedJobsAsync(
+        JobFilterDto filter,
         CancellationToken cancellationToken = default)
     {
-        var jobs =
-            await _jobRepository.GetPublishedJobsAsync(
-                cancellationToken);
+        var result = await _jobRepository.GetPublishedJobsAsync(filter, cancellationToken);
 
-        return jobs
-            .Select(MapToListDto)
-            .ToList();
+        return new PagedResult<JobListDto>
+        {
+            Items = result.Items.Select(MapToListDto).ToList(),
+            TotalCount = result.TotalCount,
+            Page = result.Page,
+            PageSize = result.PageSize
+        };
     }
 
     public async Task<JobDto?> GetPublishedJobByIdAsync(
-        int jobId,
+        string jobId,
         CancellationToken cancellationToken = default)
     {
+        if (!int.TryParse(jobId, out var jobIdInt))
+        {
+            return null;
+        }
+
         var job =
             await _jobRepository.GetByIdAsync(
-                jobId,
+                jobIdInt,
                 cancellationToken);
 
         if (job is null ||
@@ -367,12 +398,17 @@ public class JobService : IJobService
         return MapToDto(job);
     }
 
+    public async Task<List<string>> GetJobCategoriesAsync(CancellationToken cancellationToken = default)
+    {
+        return await _jobRepository.GetCategoriesAsync(cancellationToken);
+    }
+
     private static void ValidateJobData(
         string title,
         string description,
         decimal? salaryMin,
         decimal? salaryMax,
-        DateTime applicationDeadline)
+        DateTime? applicationDeadline)
     {
         if (string.IsNullOrWhiteSpace(title))
         {
@@ -408,56 +444,128 @@ public class JobService : IJobService
                 "Minimum salary cannot be greater than maximum salary.");
         }
 
-        if (applicationDeadline <= DateTime.UtcNow)
+        if (applicationDeadline.HasValue && applicationDeadline.Value <= DateTime.UtcNow)
         {
             throw new InvalidOperationException(
                 "Application deadline must be in the future.");
         }
     }
 
+    /// <summary>
+    /// Browsers submit date inputs without an offset (Kind=Unspecified),
+    /// which Npgsql refuses to write to timestamptz columns. Treat such values as UTC.
+    /// </summary>
+    private static DateTime? NormalizeToUtc(DateTime? value)
+    {
+        if (value is null)
+        {
+            return null;
+        }
+
+        return value.Value.Kind switch
+        {
+            DateTimeKind.Utc => value.Value,
+            DateTimeKind.Local => value.Value.ToUniversalTime(),
+            _ => DateTime.SpecifyKind(value.Value, DateTimeKind.Utc)
+        };
+    }
+
+    private static EmploymentType ParseEmploymentType(string? value)
+    {
+        return value switch
+        {
+            "FullTime" => EmploymentType.FullTime,
+            "PartTime" => EmploymentType.PartTime,
+            "Contract" => EmploymentType.Contract,
+            "Internship" => EmploymentType.Internship,
+            _ => EmploymentType.FullTime
+        };
+    }
+
+    private static WorkMode ParseWorkMode(string? value)
+    {
+        return value switch
+        {
+            "Remote" => WorkMode.Remote,
+            "OnSite" => WorkMode.OnSite,
+            "Hybrid" => WorkMode.Hybrid,
+            _ => WorkMode.OnSite
+        };
+    }
+
+    private static JobStatus ParseJobStatus(string? value)
+    {
+        return value switch
+        {
+            "Published" => JobStatus.Published,
+            "Closed" => JobStatus.Closed,
+            _ => JobStatus.Draft
+        };
+    }
+
     private static JobDto MapToDto(Job job)
     {
+        var skills = job.JobSkills?.Select(js => js.Skill.Name).ToList() ?? new List<string>();
+        
         return new JobDto
         {
-            Id = job.Id,
-            EmployerId = job.EmployerId,
-            CompanyId = job.CompanyId,
-            CompanyName = job.Company.Name,
-            CategoryId = job.CategoryId,
-            CategoryName = job.Category.Name,
+            Id = job.Id.ToString(),
+            EmployerId = job.EmployerId.ToString(),
+            CompanyId = job.CompanyId.HasValue ? job.CompanyId.Value.ToString() : string.Empty,
+            CompanyName = job.Company?.Name ?? string.Empty,
+            CompanyLogoUrl = job.Company?.LogoUrl ?? string.Empty,
+            CompanyDescription = job.Company?.Description ?? string.Empty,
+            CompanyWebsite = string.Empty,
+            CompanySize = string.Empty,
+            CompanyIndustry = string.Empty,
+            CategoryId = job.CategoryId.HasValue ? job.CategoryId.Value.ToString() : string.Empty,
+            CategoryName = job.Category?.Name ?? string.Empty,
             Title = job.Title,
             Description = job.Description,
-            Requirements = job.Requirements,
+            Requirements = job.Requirements ?? string.Empty,
+            Benefits = string.Empty,
             SalaryMin = job.SalaryMin,
             SalaryMax = job.SalaryMax,
-            EmploymentType = job.EmploymentType,
-            WorkMode = job.WorkMode,
-            Location = job.Location,
+            Currency = "USD",
+            EmploymentType = job.EmploymentType.ToString(),
+            WorkMode = job.WorkMode.ToString(),
+            Location = job.Location ?? string.Empty,
+            Responsibilities = new List<string>(),
+            PreferredQualifications = new List<string>(),
             ApplicationDeadline = job.ApplicationDeadline,
-            Status = job.Status,
+            Status = job.Status.ToString(),
             CreatedAt = job.CreatedAt,
-            UpdatedAt = job.UpdatedAt
+            UpdatedAt = job.UpdatedAt,
+            Skills = skills
         };
     }
 
     private static JobListDto MapToListDto(Job job)
     {
+        var skills = job.JobSkills?.Select(js => js.Skill.Name).ToList() ?? new List<string>();
+        
         return new JobListDto
         {
-            Id = job.Id,
-            CompanyId = job.CompanyId,
-            CompanyName = job.Company.Name,
-            CategoryId = job.CategoryId,
-            CategoryName = job.Category.Name,
+            Id = job.Id.ToString(),
+            CompanyId = job.CompanyId.HasValue ? job.CompanyId.Value.ToString() : string.Empty,
+            CompanyName = job.Company?.Name ?? string.Empty,
+            CompanyLogoUrl = job.Company?.LogoUrl ?? string.Empty,
+            CategoryId = job.CategoryId.HasValue ? job.CategoryId.Value.ToString() : string.Empty,
+            CategoryName = job.Category?.Name ?? string.Empty,
             Title = job.Title,
             SalaryMin = job.SalaryMin,
             SalaryMax = job.SalaryMax,
-            EmploymentType = job.EmploymentType,
-            WorkMode = job.WorkMode,
-            Location = job.Location,
-            ApplicationDeadline = job.ApplicationDeadline,
-            Status = job.Status,
-            CreatedAt = job.CreatedAt
+            Currency = "USD",
+            EmploymentType = job.EmploymentType.ToString(),
+            WorkMode = job.WorkMode.ToString(),
+            Location = job.Location ?? string.Empty,
+            PostedDate = job.CreatedAt,
+            ExpiryDate = job.ApplicationDeadline,
+            ApplicationsCount = job.JobApplications?.Count ?? 0,
+            ViewsCount = 0,
+            IsSaved = false,
+            Skills = skills,
+            Status = job.Status.ToString()
         };
     }
 }

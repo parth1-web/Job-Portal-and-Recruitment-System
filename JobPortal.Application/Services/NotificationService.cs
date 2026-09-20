@@ -32,7 +32,7 @@ public class NotificationService : INotificationService
             {
                 Items = Array.Empty<NotificationDto>(),
                 TotalCount = 0,
-                PageNumber = pageNumber,
+                Page = pageNumber,
                 PageSize = pageSize
             };
         }
@@ -51,7 +51,7 @@ public class NotificationService : INotificationService
         {
             Items = items,
             TotalCount = totalCount,
-            PageNumber = pageNumber,
+            Page = pageNumber,
             PageSize = pageSize
         };
     }

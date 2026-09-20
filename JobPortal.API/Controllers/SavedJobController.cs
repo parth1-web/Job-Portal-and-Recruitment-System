@@ -30,9 +30,9 @@ public class SavedJobController : ControllerBase
         return Ok(savedJobs);
     }
 
-    [HttpPost("{jobId:int}")]
+    [HttpPost("{jobId}")]
     public async Task<IActionResult> SaveJob(
-        int jobId,
+        string jobId,
         CancellationToken cancellationToken)
     {
         var userId = GetUserId();
@@ -48,9 +48,9 @@ public class SavedJobController : ControllerBase
         }
     }
 
-    [HttpDelete("{jobId:int}")]
+    [HttpDelete("{jobId}")]
     public async Task<IActionResult> UnsaveJob(
-        int jobId,
+        string jobId,
         CancellationToken cancellationToken)
     {
         var userId = GetUserId();
@@ -65,9 +65,9 @@ public class SavedJobController : ControllerBase
         return NoContent();
     }
 
-    [HttpGet("{jobId:int}/check")]
+    [HttpGet("{jobId}/check")]
     public async Task<IActionResult> IsJobSaved(
-        int jobId,
+        string jobId,
         CancellationToken cancellationToken)
     {
         var userId = GetUserId();

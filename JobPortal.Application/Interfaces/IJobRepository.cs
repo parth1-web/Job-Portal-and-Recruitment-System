@@ -1,4 +1,6 @@
-﻿using JobPortal.Domain.Entities;
+﻿using JobPortal.Application.DTOs.Jobs;
+using JobPortal.Application.DTOs.Common;
+using JobPortal.Domain.Entities;
 
 
 namespace JobPortal.Application.Interfaces;
@@ -18,7 +20,8 @@ public interface IJobRepository
         int employerId,
         CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyList<Job>> GetPublishedJobsAsync(
+    Task<PagedResult<Job>> GetPublishedJobsAsync(
+        JobFilterDto filter,
         CancellationToken cancellationToken = default);
 
     Task AddAsync(
@@ -28,4 +31,6 @@ public interface IJobRepository
     Task UpdateAsync(
         Job job,
         CancellationToken cancellationToken = default);
+
+    Task<List<string>> GetCategoriesAsync(CancellationToken cancellationToken = default);
 }

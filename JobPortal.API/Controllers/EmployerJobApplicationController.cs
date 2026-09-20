@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace JobPortal.API.Controllers;
 
 [ApiController]
-[Route("api/employer/jobs/{jobId:int}/applications")]
+[Route("api/employer/jobs/{jobId}/applications")]
 [Authorize(Roles = "Employer")]
 public class EmployerJobApplicationController : ControllerBase
 {
@@ -22,7 +22,7 @@ public class EmployerJobApplicationController : ControllerBase
 
     [HttpGet]
     public async Task<IActionResult> GetApplicationsForJob(
-        int jobId,
+        string jobId,
         CancellationToken cancellationToken)
     {
         var userId = GetUserId();
@@ -35,10 +35,10 @@ public class EmployerJobApplicationController : ControllerBase
         return Ok(applications);
     }
 
-    [HttpPut("{applicationId:int}/status")]
+    [HttpPut("{applicationId}/status")]
     public async Task<IActionResult> UpdateStatus(
-        int jobId,
-        int applicationId,
+        string jobId,
+        string applicationId,
         [FromBody] UpdateJobApplicationStatusDto request,
         CancellationToken cancellationToken)
     {

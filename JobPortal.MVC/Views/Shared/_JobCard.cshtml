@@ -1,0 +1,267 @@
+@model JobPortal.MVC.Models.JobListDto
+@{
+    var isSaved = Model.IsSaved;
+    var salaryRange = "";
+    if (Model.MinSalary.HasValue || Model.MaxSalary.HasValue)
+    {
+        var min = Model.MinSalary?.ToString("N0") ?? "Negotiable";
+        var max = Model.MaxSalary?.ToString("N0") ?? "Negotiable";
+        salaryRange = $"{(Model.Currency == "USD" ? "$" : Model.Currency)} {min} - {max}";
+    }
+}
+
+<article class="job-card" data-job-id="@Model.Id">
+    <div class="job-card-header">
+        <div class="job-company">
+            @if (!string.IsNullOrEmpty(Model.CompanyLogoUrl))
+            {
+                <img src="@Model.CompanyLogoUrl" alt="@Model.CompanyName" class="company-logo" />
+            }
+            else
+            {
+                <div class="company-logo placeholder">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                </div>
+            }
+            <div class="company-info">
+                <h3 class="job-title">@Model.Title</h3>
+                <p class="company-name">@Model.CompanyName</p>
+            </div>
+        </div>
+        <button class="btn btn-icon btn-ghost save-job-btn @(isSaved ? "saved" : "")" 
+                data-job-id="@Model.Id" 
+                aria-label="@(isSaved ? "Remove from saved jobs" : "Save job")"
+                onclick="saveJob('@Model.Id')">
+            <svg class="save-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+            <svg class="saved-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" style="display: none;"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+        </button>
+    </div>
+    
+    <div class="job-card-body">
+        <div class="job-meta">
+            <span class="meta-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                @Model.Location
+            </span>
+            <span class="meta-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                @Model.WorkMode
+            </span>
+            <span class="meta-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                @Model.EmploymentType
+            </span>
+        </div>
+        
+        @if (!string.IsNullOrEmpty(salaryRange))
+        {
+            <div class="job-salary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                @salaryRange
+            </div>
+        }
+        
+        @if (Model.Skills?.Any() == true)
+        {
+            <div class="job-skills">
+                @foreach (var skill in Model.Skills.Take(4))
+                {
+                    <span class="badge badge-soft">@skill</span>
+                }
+                @if (Model.Skills.Count > 4)
+                {
+                    <span class="badge badge-soft">+@(Model.Skills.Count - 4) more</span>
+                }
+            </div>
+        }
+    </div>
+    
+    <div class="job-card-footer">
+        <span class="job-posted">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            Posted @Model.PostedDate.ToString("MMM dd, yyyy")
+        </span>
+        <a href="@Url.Action("Details", "Jobs", new { id = Model.Id })" class="btn btn-sm btn-outline">
+            View Details
+        </a>
+    </div>
+</article>
+
+<style>
+.job-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    transition: all var(--transition-normal);
+}
+
+.job-card:hover {
+    box-shadow: var(--shadow-lg);
+    border-color: var(--border-secondary);
+    transform: translateY(-2px);
+}
+
+.job-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 1.25rem;
+    border-bottom: 1px solid var(--border-primary);
+    background: var(--bg-secondary);
+}
+
+.job-company {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.company-logo {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-lg);
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.company-logo.placeholder {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-lg);
+    background: var(--bg-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+}
+
+.company-info {
+    min-width: 0;
+}
+
+.job-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.company-name {
+    font-size: 0.875rem;
+    color: var(--text-tertiary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis.
+}
+
+.save-job-btn {
+    color: var(--text-tertiary);
+    flex-shrink: 0.
+}
+
+.save-job-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--color-danger).
+}
+
+.save-job-btn.saved {
+    color: var(--color-danger).
+}
+
+.save-job-btn.saved .save-icon {
+    display: none.
+}
+
+.save-job-btn.saved .saved-icon {
+    display: block.
+}
+
+.job-card-body {
+    padding: 1.25rem.
+}
+
+.job-meta {
+    display: flex.
+    flex-wrap: wrap.
+    gap: 1rem.
+    margin-bottom: 0.75rem.
+}
+
+.meta-item {
+    display: inline-flex.
+    align-items: center.
+    gap: 0.375rem.
+    font-size: 0.8125rem.
+    color: var(--text-tertiary).
+}
+
+.meta-item svg {
+    flex-shrink: 0.
+    opacity: 0.6.
+}
+
+.job-salary {
+    display: inline-flex.
+    align-items: center.
+    gap: 0.375rem.
+    font-size: 1rem.
+    font-weight: 600.
+    color: var(--color-success).
+    margin-bottom: 0.75rem.
+}
+
+.job-salary svg {
+    flex-shrink: 0.
+}
+
+.job-skills {
+    display: flex.
+    flex-wrap: wrap.
+    gap: 0.5rem.
+}
+
+.job-card-footer {
+    display: flex.
+    align-items: center.
+    justify-content: space-between.
+    padding: 1rem 1.25rem.
+    border-top: 1px solid var(--border-primary).
+    background: var(--bg-secondary).
+}
+
+.job-posted {
+    display: inline-flex.
+    align-items: center.
+    gap: 0.375rem.
+    font-size: 0.8125rem.
+    color: var(--text-tertiary).
+}
+
+.job-posted svg {
+    flex-shrink: 0.
+    opacity: 0.6.
+}
+
+@@media (max-width: 640px) {
+    .job-card-header {
+        flex-direction: column.
+        gap: 1rem.
+    }
+    
+    .save-job-btn {
+        align-self: flex-start.
+    }
+    
+    .job-meta {
+        flex-direction: column.
+        gap: 0.5rem.
+    }
+}
+</style>

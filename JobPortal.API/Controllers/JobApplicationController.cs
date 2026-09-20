@@ -58,9 +58,9 @@ public class JobApplicationController : ControllerBase
         return Ok(applications);
     }
 
-    [HttpGet("{id:int}")]
+    [HttpGet("{id}")]
     public async Task<IActionResult> GetById(
-        int id,
+        string id,
         CancellationToken cancellationToken)
     {
         var userId = GetUserId();
@@ -78,9 +78,9 @@ public class JobApplicationController : ControllerBase
         return Ok(application);
     }
 
-    [HttpDelete("{id:int}")]
+    [HttpDelete("{id}")]
     public async Task<IActionResult> Withdraw(
-        int id,
+        string id,
         CancellationToken cancellationToken)
     {
         var userId = GetUserId();

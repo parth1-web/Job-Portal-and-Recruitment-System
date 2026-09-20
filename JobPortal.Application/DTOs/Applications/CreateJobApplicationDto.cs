@@ -2,9 +2,9 @@ namespace JobPortal.Application.DTOs.Applications;
 
 public class CreateJobApplicationDto
 {
-    public int JobId { get; set; }
+    public string JobId { get; set; } = string.Empty;
 
-    public int ResumeId { get; set; }
+    public string? ResumeId { get; set; }
 
     public string? CoverLetter { get; set; }
 }

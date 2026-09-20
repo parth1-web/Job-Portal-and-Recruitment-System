@@ -9,7 +9,7 @@ public class JobApplication : BaseEntity
 
     public int CandidateId { get; set; }
 
-    public int ResumeId { get; set; }
+    public int? ResumeId { get; set; }
 
     public string? CoverLetter { get; set; }
 
@@ -21,7 +21,7 @@ public class JobApplication : BaseEntity
 
     public Candidate Candidate { get; set; } = null!;
 
-    public Resume Resume { get; set; } = null!;
+    public Resume? Resume { get; set; }
 
     public ICollection<Interview> Interviews { get; set; }
         = new List<Interview>();

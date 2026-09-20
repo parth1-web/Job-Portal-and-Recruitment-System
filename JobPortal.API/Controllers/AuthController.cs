@@ -1,6 +1,7 @@
 ﻿using JobPortal.Application.DTOs.Auth;
 using JobPortal.Application.Interfaces;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JobPortal.API.Controllers;
@@ -76,5 +77,93 @@ public class AuthController : ControllerBase
                 message = ex.Message
             });
         }
+    }
+
+    [HttpGet("profile")]
+    [Authorize]
+    public async Task<IActionResult> GetProfile(
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var userId = GetUserId();
+            var profile = await _authService.GetProfileAsync(userId, cancellationToken);
+
+            if (profile is null)
+            {
+                return NotFound(new { message = "Profile not found." });
+            }
+
+            return Ok(profile);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized();
+        }
+    }
+
+    [HttpPut("profile")]
+    [Authorize]
+    public async Task<IActionResult> UpdateProfile(
+        [FromBody] UpdateProfileRequestDto request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var userId = GetUserId();
+            var profile = await _authService.UpdateProfileAsync(userId, request, cancellationToken);
+
+            return Ok(profile);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized();
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpPost("change-password")]
+    [Authorize]
+    public async Task<IActionResult> ChangePassword(
+        [FromBody] ChangePasswordRequestDto request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var userId = GetUserId();
+            await _authService.ChangePasswordAsync(userId, request, cancellationToken);
+
+            return Ok(new { message = "Password changed successfully." });
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized();
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpPost("logout")]
+    [Authorize]
+    public async Task<IActionResult> Logout()
+    {
+        return Ok(new { message = "Logged out successfully." });
+    }
+
+    private int GetUserId()
+    {
+        var value = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+        if (!int.TryParse(value, out var userId))
+        {
+            throw new UnauthorizedAccessException("Invalid user identity.");
+        }
+
+        return userId;
     }
 }

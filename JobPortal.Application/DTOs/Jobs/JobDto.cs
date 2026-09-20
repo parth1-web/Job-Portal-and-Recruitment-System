@@ -4,15 +4,25 @@ namespace JobPortal.Application.DTOs.Jobs;
 
 public class JobDto
 {
-    public int Id { get; set; }
+    public string Id { get; set; } = string.Empty;
 
-    public int EmployerId { get; set; }
+    public string EmployerId { get; set; } = string.Empty;
 
-    public int CompanyId { get; set; }
+    public string CompanyId { get; set; } = string.Empty;
 
     public string CompanyName { get; set; } = string.Empty;
 
-    public int CategoryId { get; set; }
+    public string CompanyLogoUrl { get; set; } = string.Empty;
+
+    public string CompanyDescription { get; set; } = string.Empty;
+
+    public string CompanyWebsite { get; set; } = string.Empty;
+
+    public string CompanySize { get; set; } = string.Empty;
+
+    public string CompanyIndustry { get; set; } = string.Empty;
+
+    public string CategoryId { get; set; } = string.Empty;
 
     public string CategoryName { get; set; } = string.Empty;
 
@@ -20,23 +30,39 @@ public class JobDto
 
     public string Description { get; set; } = string.Empty;
 
-    public string? Requirements { get; set; }
+    public string Requirements { get; set; } = string.Empty;
+
+    public string Benefits { get; set; } = string.Empty;
 
     public decimal? SalaryMin { get; set; }
 
     public decimal? SalaryMax { get; set; }
 
-    public EmploymentType EmploymentType { get; set; }
+    public string Currency { get; set; } = "USD";
 
-    public WorkMode WorkMode { get; set; }
+    public string EmploymentType { get; set; } = string.Empty;
 
-    public string? Location { get; set; }
+    public string WorkMode { get; set; } = string.Empty;
 
-    public DateTime ApplicationDeadline { get; set; }
+    public string Location { get; set; } = string.Empty;
 
-    public JobStatus Status { get; set; }
+    public List<string> Responsibilities { get; set; } = new();
+
+    public List<string> PreferredQualifications { get; set; } = new();
+
+    public DateTime? ApplicationDeadline { get; set; }
+
+    public string Status { get; set; } = string.Empty;
 
     public DateTime CreatedAt { get; set; }
 
     public DateTime UpdatedAt { get; set; }
+
+    public List<string> Skills { get; set; } = new();
+
+    public bool HasApplied { get; set; }
+
+    public string? ApplicationStatus { get; set; }
+
+    public DateTime? AppliedAt { get; set; }
 }

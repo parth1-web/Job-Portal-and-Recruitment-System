@@ -70,7 +70,9 @@ public class ResumeService : IResumeService
             FileName = dto.FileName.Trim(),
             FileUrl = dto.FileUrl.Trim(),
             IsDefault = dto.IsDefault,
-            UploadedAt = DateTime.UtcNow
+            UploadedAt = DateTime.UtcNow,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
         };
 
         await _resumeRepository.AddAsync(resume, cancellationToken);

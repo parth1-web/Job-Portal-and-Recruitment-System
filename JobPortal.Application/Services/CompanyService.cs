@@ -49,7 +49,9 @@ public class CompanyService : ICompanyService
             Description = dto.Description?.Trim(),
             WebsiteUrl = dto.WebsiteUrl?.Trim(),
             Location = dto.Location?.Trim(),
-            LogoUrl = dto.LogoUrl?.Trim()
+            LogoUrl = dto.LogoUrl?.Trim(),
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
         };
 
         await _companyRepository.AddAsync(company, cancellationToken);

@@ -25,9 +25,9 @@ public class SkillController : ControllerBase
         return Ok(skills);
     }
 
-    [HttpGet("{id:int}")]
+    [HttpGet("{id}")]
     public async Task<IActionResult> GetById(
-        int id,
+        string id,
         CancellationToken cancellationToken)
     {
         var skill = await _skillService.GetByIdAsync(id, cancellationToken);
@@ -61,10 +61,10 @@ public class SkillController : ControllerBase
         }
     }
 
-    [HttpPut("{id:int}")]
+    [HttpPut("{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Update(
-        int id,
+        string id,
         [FromBody] UpdateSkillDto request,
         CancellationToken cancellationToken)
     {
@@ -89,10 +89,10 @@ public class SkillController : ControllerBase
         }
     }
 
-    [HttpDelete("{id:int}")]
+    [HttpDelete("{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(
-        int id,
+        string id,
         CancellationToken cancellationToken)
     {
         var deleted = await _skillService.DeleteAsync(id, cancellationToken);

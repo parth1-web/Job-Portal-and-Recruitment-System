@@ -64,14 +64,18 @@ public class InterviewService : IInterviewService
             throw new InvalidOperationException("Duration must be greater than 0.");
         }
 
+        var scheduledAt = NormalizeToUtc(dto.ScheduledAt);
+
         var interview = new Interview
         {
             ApplicationId = dto.ApplicationId,
-            ScheduledAt = dto.ScheduledAt,
+            ScheduledAt = scheduledAt,
             DurationMinutes = dto.DurationMinutes,
             MeetingLink = dto.MeetingLink?.Trim(),
             Notes = dto.Notes?.Trim(),
-            Status = InterviewStatus.Scheduled
+            Status = InterviewStatus.Scheduled,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
         };
 
         await _interviewRepository.AddAsync(interview, cancellationToken);
@@ -147,7 +151,7 @@ public class InterviewService : IInterviewService
 
         if (dto.ScheduledAt.HasValue)
         {
-            interview.ScheduledAt = dto.ScheduledAt.Value;
+            interview.ScheduledAt = NormalizeToUtc(dto.ScheduledAt.Value);
         }
 
         if (dto.DurationMinutes.HasValue)
@@ -220,6 +224,20 @@ public class InterviewService : IInterviewService
         interview.UpdatedAt = DateTime.UtcNow;
 
         await _interviewRepository.UpdateAsync(interview, cancellationToken);
+    }
+
+    /// <summary>
+    /// Browsers submit datetime-local values without an offset (Kind=Unspecified),
+    /// which Npgsql refuses to write to timestamptz columns. Treat such values as UTC.
+    /// </summary>
+    private static DateTime NormalizeToUtc(DateTime value)
+    {
+        return value.Kind switch
+        {
+            DateTimeKind.Utc => value,
+            DateTimeKind.Local => value.ToUniversalTime(),
+            _ => DateTime.SpecifyKind(value, DateTimeKind.Utc)
+        };
     }
 
     private static InterviewDto MapToDto(Interview interview)

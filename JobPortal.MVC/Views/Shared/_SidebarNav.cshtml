@@ -1,0 +1,228 @@
+@using JobPortal.MVC.Models
+@{
+    var userRole = ViewData["UserRole"]?.ToString() ?? "";
+    var currentPath = ViewContext.HttpContext.Request.Path.Value?.ToLower() ?? "";
+}
+
+<ul class="nav-list" role="list">
+    @if (userRole == "Candidate" || userRole == "Admin")
+    {
+        <li class="nav-section">
+            <span class="nav-section-title">Candidate</span>
+            <li class="nav-item">
+                <a href="@Url.Action("Index", "CandidateDashboard")" class="nav-link @(currentPath.StartsWith("/candidatedashboard") ? "active" : "")" data-submenu="candidate-submenu">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                            <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                            <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                            <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+                        </svg>
+                    </span>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="@Url.Action("Index", "Jobs")" class="nav-link @(currentPath.StartsWith("/jobs") && !currentPath.Contains("/employer") ? "active" : "")">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                    </span>
+                    <span class="nav-text">Browse Jobs</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="@Url.Action("Applications", "CandidateDashboard")" class="nav-link @(currentPath.StartsWith("/candidatedashboard/applications") ? "active" : "")">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                    </span>
+                    <span class="nav-text">My Applications</span>
+                    <span class="nav-badge" id="applicationsBadge" style="display: none;">0</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="@Url.Action("SavedJobs", "CandidateDashboard")" class="nav-link @(currentPath.StartsWith("/candidatedashboard/saved") ? "active" : "")">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                    </span>
+                    <span class="nav-text">Saved Jobs</span>
+                    <span class="nav-badge" id="savedJobsBadge" style="display: none;">0</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="@Url.Action("Interviews", "CandidateDashboard")" class="nav-link @(currentPath.StartsWith("/candidatedashboard/interviews") ? "active" : "")">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                    </span>
+                    <span class="nav-text">Interviews</span>
+                    <span class="nav-badge" id="interviewsBadge" style="display: none;">0</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="@Url.Action("Profile", "Account")" class="nav-link @(currentPath.StartsWith("/account/profile") ? "active" : "")">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </span>
+                    <span class="nav-text">Profile</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="@Url.Action("Settings", "Account")" class="nav-link @(currentPath.StartsWith("/account/settings") ? "active" : "")">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                    </span>
+                    <span class="nav-text">Settings</span>
+                </a>
+            </li>
+        </li>
+    }
+    
+    @if (userRole == "Employer" || userRole == "Admin")
+    {
+        <li class="nav-section">
+            <span class="nav-section-title">Employer</span>
+            <li class="nav-item">
+                <a href="@Url.Action("Index", "EmployerDashboard")" class="nav-link @(currentPath.StartsWith("/employerdashboard") ? "active" : "")" data-submenu="employer-submenu">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                    </span>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="@Url.Action("Jobs", "EmployerDashboard")" class="nav-link @(currentPath.StartsWith("/employerdashboard/jobs") ? "active" : "")">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                    </span>
+                    <span class="nav-text">My Jobs</span>
+                    <span class="nav-badge" id="myJobsBadge" style="display: none;">0</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="@Url.Action("Applications", "EmployerDashboard")" class="nav-link @(currentPath.StartsWith("/employerdashboard/applications") ? "active" : "")">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </span>
+                    <span class="nav-text">Applications</span>
+                    <span class="nav-badge" id="employerApplicationsBadge" style="display: none;">0</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="@Url.Action("Interviews", "EmployerDashboard")" class="nav-link @(currentPath.StartsWith("/employerdashboard/interviews") ? "active" : "")">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                    </span>
+                    <span class="nav-text">Interviews</span>
+                    <span class="nav-badge" id="employerInterviewsBadge" style="display: none;">0</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="@Url.Action("Create", "EmployerJobs")" class="nav-link @(currentPath.StartsWith("/employerjobs/create") ? "active" : "")">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </span>
+                    <span class="nav-text">Post a Job</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="@Url.Action("CompanyProfile", "EmployerDashboard")" class="nav-link @(currentPath.StartsWith("/employerdashboard/company") ? "active" : "")">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                    </span>
+                    <span class="nav-text">Company Profile</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="@Url.Action("Settings", "Account")" class="nav-link @(currentPath.StartsWith("/account/settings") ? "active" : "")">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                    </span>
+                    <span class="nav-text">Settings</span>
+                </a>
+            </li>
+        </li>
+    }
+</ul>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchNotificationCounts();
+        setInterval(fetchNotificationCounts, 60000);
+    });
+
+    async function fetchNotificationCounts() {
+        try {
+            const response = await fetch('/Notifications/UnreadCount');
+            if (response.ok) {
+                const data = await response.json();
+                updateBadge('notificationBadge', data.count);
+            }
+        } catch (e) {
+            console.warn('Failed to fetch notification counts', e);
+        }
+    }
+
+    function updateBadge(elementId, count) {
+        const badge = document.getElementById(elementId);
+        if (badge) {
+            if (count > 0) {
+                badge.textContent = count > 99 ? '99+' : count;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+    }
+</script>

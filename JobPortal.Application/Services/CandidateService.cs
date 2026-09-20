@@ -76,7 +76,9 @@ public class CandidateService : ICandidateService
             Location = request.Location,
             ProfessionalTitle = request.ProfessionalTitle,
             Bio = request.Bio,
-            ResumeUrl = request.ResumeUrl
+            ResumeUrl = request.ResumeUrl,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
         };
 
         await _candidateRepository.AddAsync(

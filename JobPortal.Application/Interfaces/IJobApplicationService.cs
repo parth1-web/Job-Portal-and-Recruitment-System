@@ -15,22 +15,22 @@ public interface IJobApplicationService
 
     Task<JobApplicationDto?> GetApplicationByIdAsync(
         int userId,
-        int applicationId,
+        string applicationId,
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<JobApplicationListDto>> GetApplicationsForJobAsync(
         int userId,
-        int jobId,
+        string jobId,
         CancellationToken cancellationToken = default);
 
     Task<JobApplicationDto?> UpdateStatusAsync(
         int userId,
-        int applicationId,
+        string applicationId,
         UpdateJobApplicationStatusDto dto,
         CancellationToken cancellationToken = default);
 
     Task WithdrawAsync(
         int userId,
-        int applicationId,
+        string applicationId,
         CancellationToken cancellationToken = default);
 }

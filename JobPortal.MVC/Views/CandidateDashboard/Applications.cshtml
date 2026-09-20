@@ -1,0 +1,77 @@
+@model JobPortal.MVC.Models.PagedResult<JobPortal.MVC.Models.JobApplicationDto>
+@{
+    ViewData["Title"] = "My Applications";
+    var statusFilter = ViewData["StatusFilter"]?.ToString();
+}
+
+<div class="animate-fade-in">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <span class="page-title-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                </span>
+                My Applications
+            </h1>
+            <p class="page-subtitle">Track the status of your job applications</p>
+        </div>
+        <a href="@Url.Action("Index", "Jobs")" class="btn btn-primary">Browse Jobs</a>
+    </div>
+
+    @if (Model?.Items?.Any() == true)
+    {
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr><th>Job</th><th>Company</th><th>Applied</th><th>Status</th><th></th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var app in Model.Items)
+                    {
+                        <tr>
+                            <td><a class="table-cell-link" href="@Url.Action("Details", "Jobs", new { id = app.JobId })">@app.JobTitle</a></td>
+                            <td>@app.CompanyName</td>
+                            <td>@app.AppliedAt.ToString("MMM dd, yyyy")</td>
+                            <td><span class="badge badge-@StatusClass(app.Status)">@app.Status</span></td>
+                            <td><a class="table-action-btn" aria-label="View job" href="@Url.Action("Details", "Jobs", new { id = app.JobId })"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            <nav class="pagination" aria-label="Pagination">
+                @if (Model.HasPreviousPage)
+                {
+                    <a class="page-link" href="@Url.Action("Applications", new { page = Model.Page - 1 })">Previous</a>
+                }
+                <span class="page-link active">@Model.Page of @Model.TotalPages</span>
+                @if (Model.HasNextPage)
+                {
+                    <a class="page-link" href="@Url.Action("Applications", new { page = Model.Page + 1 })">Next</a>
+                }
+            </nav>
+        }
+    }
+    else
+    {
+        <div class="card"><div class="card-body text-center">
+            <h3 class="text-primary">No applications yet</h3>
+            <p class="text-tertiary">Start applying to jobs to track them here.</p>
+            <a href="@Url.Action("Index", "Jobs")" class="btn btn-primary mt-3">Browse Jobs</a>
+        </div></div>
+    }
+</div>
+
+@functions {
+    string StatusClass(string s) => s?.ToLower() switch
+    {
+        "accepted" or "hired" => "success",
+        "rejected" => "danger",
+        "interview" or "interviewing" or "shortlisted" => "primary",
+        "reviewed" or "underreview" => "info",
+        _ => "warning"
+    };
+}

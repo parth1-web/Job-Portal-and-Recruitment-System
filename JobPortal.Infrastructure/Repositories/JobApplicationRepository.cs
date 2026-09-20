@@ -49,6 +49,7 @@ public class JobApplicationRepository : IJobApplicationRepository
             .AsNoTracking()
             .Include(x => x.Job)
                 .ThenInclude(j => j.Company)
+            .Include(x => x.Candidate)
             .Where(x => x.CandidateId == candidateId)
             .OrderByDescending(x => x.AppliedAt)
             .ToListAsync(cancellationToken);
@@ -60,6 +61,8 @@ public class JobApplicationRepository : IJobApplicationRepository
     {
         return await _context.JobApplications
             .AsNoTracking()
+            .Include(x => x.Job)
+                .ThenInclude(j => j.Company)
             .Include(x => x.Candidate)
                 .ThenInclude(c => c.User)
             .Include(x => x.Resume)

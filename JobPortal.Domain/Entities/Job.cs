@@ -7,9 +7,9 @@ public class Job : BaseEntity
 {
     public int EmployerId { get; set; }
 
-    public int CompanyId { get; set; }
+    public int? CompanyId { get; set; }
 
-    public int CategoryId { get; set; }
+    public int? CategoryId { get; set; }
 
     public string Title { get; set; } = string.Empty;
 

@@ -38,7 +38,12 @@ public class JobApplicationService : IJobApplicationService
             throw new InvalidOperationException("Candidate profile not found.");
         }
 
-        var job = await _jobRepository.GetByIdAsync(dto.JobId, cancellationToken);
+        if (!int.TryParse(dto.JobId, out var jobIdInt))
+        {
+            throw new InvalidOperationException("Invalid job ID.");
+        }
+
+        var job = await _jobRepository.GetByIdAsync(jobIdInt, cancellationToken);
         if (job is null)
         {
             throw new InvalidOperationException("Job not found.");
@@ -54,26 +59,31 @@ public class JobApplicationService : IJobApplicationService
             throw new InvalidOperationException("Application deadline has passed.");
         }
 
-        var exists = await _applicationRepository.ExistsAsync(dto.JobId, candidate.Id, cancellationToken);
+        var exists = await _applicationRepository.ExistsAsync(jobIdInt, candidate.Id, cancellationToken);
         if (exists)
         {
             throw new InvalidOperationException("You have already applied to this job.");
         }
 
-        var resume = await _resumeRepository.GetByIdAsync(dto.ResumeId, cancellationToken);
-        if (resume is null || resume.CandidateId != candidate.Id)
+        if (!string.IsNullOrEmpty(dto.ResumeId) && int.TryParse(dto.ResumeId, out var resumeIdInt))
         {
-            throw new InvalidOperationException("Invalid resume selected.");
+            var resume = await _resumeRepository.GetByIdAsync(resumeIdInt, cancellationToken);
+            if (resume is null || resume.CandidateId != candidate.Id)
+            {
+                throw new InvalidOperationException("Invalid resume selected.");
+            }
         }
 
         var application = new JobApplication
         {
-            JobId = dto.JobId,
+            JobId = jobIdInt,
             CandidateId = candidate.Id,
-            ResumeId = dto.ResumeId,
+            ResumeId = int.TryParse(dto.ResumeId, out var resumeId) ? resumeId : null,
             CoverLetter = dto.CoverLetter?.Trim(),
             Status = ApplicationStatus.Applied,
-            AppliedAt = DateTime.UtcNow
+            AppliedAt = DateTime.UtcNow,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
         };
 
         await _applicationRepository.AddAsync(application, cancellationToken);
@@ -103,7 +113,7 @@ public class JobApplicationService : IJobApplicationService
 
     public async Task<JobApplicationDto?> GetApplicationByIdAsync(
         int userId,
-        int applicationId,
+        string applicationId,
         CancellationToken cancellationToken = default)
     {
         var candidate = await _candidateRepository.GetByUserIdAsync(userId, cancellationToken);
@@ -112,7 +122,12 @@ public class JobApplicationService : IJobApplicationService
             return null;
         }
 
-        var application = await _applicationRepository.GetByIdWithDetailsAsync(applicationId, cancellationToken);
+        if (!int.TryParse(applicationId, out var appIdInt))
+        {
+            return null;
+        }
+
+        var application = await _applicationRepository.GetByIdWithDetailsAsync(appIdInt, cancellationToken);
         if (application is null || application.CandidateId != candidate.Id)
         {
             return null;
@@ -123,7 +138,7 @@ public class JobApplicationService : IJobApplicationService
 
     public async Task<IReadOnlyList<JobApplicationListDto>> GetApplicationsForJobAsync(
         int userId,
-        int jobId,
+        string jobId,
         CancellationToken cancellationToken = default)
     {
         var employer = await _userRepository.GetByIdAsync(userId);
@@ -132,23 +147,33 @@ public class JobApplicationService : IJobApplicationService
             return Array.Empty<JobApplicationListDto>();
         }
 
-        var job = await _jobRepository.GetByIdAsync(jobId, cancellationToken);
+        if (!int.TryParse(jobId, out var jobIdInt))
+        {
+            return Array.Empty<JobApplicationListDto>();
+        }
+
+        var job = await _jobRepository.GetByIdAsync(jobIdInt, cancellationToken);
         if (job is null || job.Employer.UserId != userId)
         {
             return Array.Empty<JobApplicationListDto>();
         }
 
-        var applications = await _applicationRepository.GetByJobIdAsync(jobId, cancellationToken);
+        var applications = await _applicationRepository.GetByJobIdAsync(jobIdInt, cancellationToken);
         return applications.Select(MapToListDto).ToList();
     }
 
     public async Task<JobApplicationDto?> UpdateStatusAsync(
         int userId,
-        int applicationId,
+        string applicationId,
         UpdateJobApplicationStatusDto dto,
         CancellationToken cancellationToken = default)
     {
-        var application = await _applicationRepository.GetByIdWithDetailsAsync(applicationId, cancellationToken);
+        if (!int.TryParse(applicationId, out var appIdInt))
+        {
+            return null;
+        }
+
+        var application = await _applicationRepository.GetByIdWithDetailsAsync(appIdInt, cancellationToken);
         if (application is null)
         {
             return null;
@@ -168,8 +193,13 @@ public class JobApplicationService : IJobApplicationService
             throw new UnauthorizedAccessException("Not authorized to update this application.");
         }
 
+        if (!Enum.TryParse<ApplicationStatus>(dto.Status, true, out var newStatus))
+        {
+            throw new ArgumentException("Invalid status value.");
+        }
+
         var oldStatus = application.Status;
-        application.Status = dto.Status;
+        application.Status = newStatus;
         application.UpdatedAt = DateTime.UtcNow;
 
         await _applicationRepository.UpdateAsync(application, cancellationToken);
@@ -178,7 +208,7 @@ public class JobApplicationService : IJobApplicationService
         {
             ApplicationId = application.Id,
             OldStatus = oldStatus,
-            NewStatus = dto.Status,
+            NewStatus = newStatus,
             ChangedByUserId = userId,
             ChangedAt = DateTime.UtcNow,
             Note = dto.Note?.Trim()
@@ -192,7 +222,7 @@ public class JobApplicationService : IJobApplicationService
 
     public async Task WithdrawAsync(
         int userId,
-        int applicationId,
+        string applicationId,
         CancellationToken cancellationToken = default)
     {
         var candidate = await _candidateRepository.GetByUserIdAsync(userId, cancellationToken);
@@ -201,7 +231,12 @@ public class JobApplicationService : IJobApplicationService
             throw new InvalidOperationException("Candidate profile not found.");
         }
 
-        var application = await _applicationRepository.GetByIdAsync(applicationId, cancellationToken);
+        if (!int.TryParse(applicationId, out var appIdInt))
+        {
+            throw new InvalidOperationException("Invalid application ID.");
+        }
+
+        var application = await _applicationRepository.GetByIdAsync(appIdInt, cancellationToken);
         if (application is null || application.CandidateId != candidate.Id)
         {
             throw new InvalidOperationException("Application not found.");
@@ -222,16 +257,23 @@ public class JobApplicationService : IJobApplicationService
     {
         return new JobApplicationDto
         {
-            Id = application.Id,
-            JobId = application.JobId,
-            JobTitle = application.Job.Title,
-            CompanyName = application.Job.Company.Name,
-            CandidateId = application.CandidateId,
-            CandidateName = $"{application.Candidate.FirstName} {application.Candidate.LastName}",
-            ResumeId = application.ResumeId,
+            Id = application.Id.ToString(),
+            JobId = application.JobId.ToString(),
+            JobTitle = application.Job?.Title ?? string.Empty,
+            CompanyName = application.Job?.Company?.Name ?? string.Empty,
+            CompanyLogoUrl = application.Job?.Company?.LogoUrl ?? string.Empty,
+            CandidateId = application.CandidateId.ToString(),
+            CandidateName = application.Candidate is null
+                ? string.Empty
+                : $"{application.Candidate.FirstName} {application.Candidate.LastName}".Trim(),
+            CandidateEmail = application.Candidate?.User?.Email ?? string.Empty,
+            ResumeId = application.ResumeId.HasValue ? application.ResumeId.Value.ToString() : string.Empty,
             CoverLetter = application.CoverLetter,
-            Status = application.Status,
+            Status = application.Status.ToString(),
             AppliedAt = application.AppliedAt,
+            ReviewedAt = application.UpdatedAt != application.CreatedAt ? application.UpdatedAt : null,
+            Skills = application.Job?.JobSkills?.Select(js => js.Skill.Name).ToList() ?? new List<string>(),
+            RejectionReason = string.Empty,
             CreatedAt = application.CreatedAt,
             UpdatedAt = application.UpdatedAt
         };
@@ -241,13 +283,15 @@ public class JobApplicationService : IJobApplicationService
     {
         return new JobApplicationListDto
         {
-            Id = application.Id,
-            JobId = application.JobId,
-            JobTitle = application.Job.Title,
-            CompanyName = application.Job.Company.Name,
-            CandidateId = application.CandidateId,
-            CandidateName = $"{application.Candidate.FirstName} {application.Candidate.LastName}",
-            Status = application.Status,
+            Id = application.Id.ToString(),
+            JobId = application.JobId.ToString(),
+            JobTitle = application.Job?.Title ?? string.Empty,
+            CompanyName = application.Job?.Company?.Name ?? string.Empty,
+            CandidateId = application.CandidateId.ToString(),
+            CandidateName = application.Candidate is null
+                ? string.Empty
+                : $"{application.Candidate.FirstName} {application.Candidate.LastName}".Trim(),
+            Status = application.Status.ToString(),
             AppliedAt = application.AppliedAt
         };
     }

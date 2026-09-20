@@ -75,7 +75,9 @@ public class EmployerService : IEmployerService
             Website = request.Website,
             Industry = request.Industry,
             Location = request.Location,
-            CompanyLogoUrl = request.CompanyLogoUrl
+            CompanyLogoUrl = request.CompanyLogoUrl,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
         };
 
         await _employerRepository.AddAsync(

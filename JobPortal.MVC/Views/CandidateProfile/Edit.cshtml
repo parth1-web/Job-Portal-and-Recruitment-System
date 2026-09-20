@@ -1,0 +1,25 @@
+@model JobPortal.MVC.Models.CandidateProfileDto
+@{
+    ViewData["Title"] = "Edit Profile";
+}
+
+<div class="animate-fade-in">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Edit Profile</h1>
+            <p class="page-subtitle">Keep your professional information up to date</p>
+        </div>
+        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Back to Profile</a>
+    </div>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="card mb-4"><div class="card-body" style="border-left: 4px solid var(--color-danger);">@TempData["ErrorMessage"]</div></div>
+    }
+
+    <div class="card" style="max-width: 720px;">
+        <div class="card-body">
+            <partial name="_ProfileForm" model="Model" />
+        </div>
+    </div>
+</div>

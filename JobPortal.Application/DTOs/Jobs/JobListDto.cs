@@ -4,13 +4,15 @@ namespace JobPortal.Application.DTOs.Jobs;
 
 public class JobListDto
 {
-    public int Id { get; set; }
+    public string Id { get; set; } = string.Empty;
 
-    public int CompanyId { get; set; }
+    public string CompanyId { get; set; } = string.Empty;
 
     public string CompanyName { get; set; } = string.Empty;
 
-    public int CategoryId { get; set; }
+    public string CompanyLogoUrl { get; set; } = string.Empty;
+
+    public string CategoryId { get; set; } = string.Empty;
 
     public string CategoryName { get; set; } = string.Empty;
 
@@ -20,15 +22,25 @@ public class JobListDto
 
     public decimal? SalaryMax { get; set; }
 
-    public EmploymentType EmploymentType { get; set; }
+    public string Currency { get; set; } = "USD";
 
-    public WorkMode WorkMode { get; set; }
+    public string EmploymentType { get; set; } = string.Empty;
 
-    public string? Location { get; set; }
+    public string WorkMode { get; set; } = string.Empty;
 
-    public DateTime ApplicationDeadline { get; set; }
+    public string Location { get; set; } = string.Empty;
 
-    public JobStatus Status { get; set; }
+    public DateTime PostedDate { get; set; }
 
-    public DateTime CreatedAt { get; set; }
+    public DateTime? ExpiryDate { get; set; }
+
+    public int ApplicationsCount { get; set; }
+
+    public int ViewsCount { get; set; }
+
+    public bool IsSaved { get; set; }
+
+    public List<string> Skills { get; set; } = new();
+
+    public string Status { get; set; } = string.Empty;
 }

@@ -5,7 +5,7 @@ namespace JobPortal.Application.Interfaces;
 public interface ISkillService
 {
     Task<SkillDto?> GetByIdAsync(
-        int id,
+        string id,
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<SkillDto>> GetAllAsync(
@@ -16,11 +16,11 @@ public interface ISkillService
         CancellationToken cancellationToken = default);
 
     Task<SkillDto?> UpdateAsync(
-        int id,
+        string id,
         UpdateSkillDto dto,
         CancellationToken cancellationToken = default);
 
     Task<bool> DeleteAsync(
-        int id,
+        string id,
         CancellationToken cancellationToken = default);
 }

@@ -14,10 +14,13 @@ public class SkillService : ISkillService
     }
 
     public async Task<SkillDto?> GetByIdAsync(
-        int id,
+        string id,
         CancellationToken cancellationToken = default)
     {
-        var skill = await _skillRepository.GetByIdAsync(id, cancellationToken);
+        if (!int.TryParse(id, out var skillId))
+            return null;
+            
+        var skill = await _skillRepository.GetByIdAsync(skillId, cancellationToken);
         return skill is null ? null : MapToDto(skill);
     }
 
@@ -60,11 +63,14 @@ public class SkillService : ISkillService
     }
 
     public async Task<SkillDto?> UpdateAsync(
-        int id,
+        string id,
         UpdateSkillDto dto,
         CancellationToken cancellationToken = default)
     {
-        var skill = await _skillRepository.GetByIdAsync(id, cancellationToken);
+        if (!int.TryParse(id, out var skillId))
+            return null;
+            
+        var skill = await _skillRepository.GetByIdAsync(skillId, cancellationToken);
         if (skill is null)
         {
             return null;
@@ -76,7 +82,7 @@ public class SkillService : ISkillService
         }
 
         var existing = await _skillRepository.GetByNameAsync(dto.Name.Trim(), cancellationToken);
-        if (existing is not null && existing.Id != id)
+        if (existing is not null && existing.Id != skillId)
         {
             throw new InvalidOperationException("A skill with this name already exists.");
         }
@@ -90,10 +96,13 @@ public class SkillService : ISkillService
     }
 
     public async Task<bool> DeleteAsync(
-        int id,
+        string id,
         CancellationToken cancellationToken = default)
     {
-        var skill = await _skillRepository.GetByIdAsync(id, cancellationToken);
+        if (!int.TryParse(id, out var skillId))
+            return false;
+            
+        var skill = await _skillRepository.GetByIdAsync(skillId, cancellationToken);
         if (skill is null)
         {
             return false;
@@ -107,7 +116,7 @@ public class SkillService : ISkillService
     {
         return new SkillDto
         {
-            Id = skill.Id,
+            Id = skill.Id.ToString(),
             Name = skill.Name,
             CreatedAt = skill.CreatedAt,
             UpdatedAt = skill.UpdatedAt

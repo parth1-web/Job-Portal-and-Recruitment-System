@@ -1,0 +1,500 @@
+@model JobPortal.MVC.Models.PagedResult<JobPortal.MVC.Models.JobListDto>
+@{
+    ViewData["Title"] = "Browse Jobs";
+    ViewData["PageTitle"] = "Browse Jobs";
+    var filter = ViewData["Filter"] as JobPortal.MVC.Models.JobFilterRequest ?? new JobPortal.MVC.Models.JobFilterRequest();
+    var categories = ViewData["Categories"] as List<string> ?? new List<string>();
+    var skills = ViewData["Skills"] as List<JobPortal.MVC.Models.SkillDto> ?? new List<JobPortal.MVC.Models.SkillDto>();
+}
+
+<div class="jobs-page animate-fade-in">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <span class="page-title-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </span>
+                Browse Jobs
+            </h1>
+            <p class="page-subtitle">Discover your next career opportunity</p>
+        </div>
+    </div>
+
+    <div class="jobs-layout">
+        <aside class="filters-sidebar" id="filtersSidebar">
+            <div class="filter-header d-flex justify-between items-center">
+                <h3 class="filter-title">Filters</h3>
+                <button class="btn btn-icon btn-ghost filter-close" id="filterClose" aria-label="Close filters">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            
+            <form method="get" action="@Url.Action("Index")" class="filters-form">
+                <div class="filter-group">
+                    <label class="filter-label">Keywords</label>
+                    <input type="text" name="filter.SearchTerm" class="form-input" placeholder="Job title, skills..." value="@filter.SearchTerm" />
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Location</label>
+                    <input type="text" name="filter.Location" class="form-input" placeholder="City, state, remote" value="@filter.Location" />
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Work Mode</label>
+                    <select name="filter.WorkMode" class="form-select" asp-items="@(new List<SelectListItem> {
+                        new SelectListItem { Value = "", Text = "All Types" },
+                        new SelectListItem { Value = "Remote", Text = "Remote", Selected = filter.WorkMode == "Remote" },
+                        new SelectListItem { Value = "OnSite", Text = "On-Site", Selected = filter.WorkMode == "OnSite" },
+                        new SelectListItem { Value = "Hybrid", Text = "Hybrid", Selected = filter.WorkMode == "Hybrid" }
+                    })"></select>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Employment Type</label>
+                    <select name="filter.EmploymentType" class="form-select" asp-items="@(new List<SelectListItem> {
+                        new SelectListItem { Value = "", Text = "All Types" },
+                        new SelectListItem { Value = "FullTime", Text = "Full Time", Selected = filter.EmploymentType == "FullTime" },
+                        new SelectListItem { Value = "PartTime", Text = "Part Time", Selected = filter.EmploymentType == "PartTime" },
+                        new SelectListItem { Value = "Contract", Text = "Contract", Selected = filter.EmploymentType == "Contract" },
+                        new SelectListItem { Value = "Internship", Text = "Internship", Selected = filter.EmploymentType == "Internship" }
+                    })"></select>
+                </div>
+                
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label class="filter-label">Min Salary</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" name="filter.MinSalary" class="form-input" placeholder="0" value="@filter.MinSalary" min="0" step="1000" />
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Max Salary</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" name="filter.MaxSalary" class="form-input" placeholder="0" value="@filter.MaxSalary" min="0" step="1000" />
+                        </div>
+                    </div>
+                </div>
+                
+                @if (skills.Any())
+                {
+                    <div class="filter-group">
+                        <label class="filter-label">Skills</label>
+                        <div class="skills-filter">
+                            @foreach (var skill in skills.Take(10))
+                            {
+                                <label class="skill-checkbox">
+                                    <input type="checkbox" name="filter.SkillIds" value="@skill.Id" @(filter.SkillIds.Contains(skill.Id) ? "checked" : "") />
+                                    <span>@skill.Name</span>
+                                </label>
+                            }
+                        </div>
+                    </div>
+                }
+                
+                <div class="filter-actions">
+                    <button type="submit" class="btn btn-primary w-full">Apply Filters</button>
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary w-full">Clear All</a>
+                </div>
+            </form>
+        </aside>
+        
+        <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+        
+        <main class="jobs-main">
+            <div class="jobs-toolbar d-flex justify-between items-center flex-wrap gap-3">
+                <div class="results-info">
+                    @if (Model != null && Model.TotalCount > 0)
+                    {
+                        <span>Showing @((Model.Page - 1) * Model.PageSize + 1) - @Math.Min(Model.Page * Model.PageSize, Model.TotalCount) of @Model.TotalCount jobs</span>
+                    }
+                    else
+                    {
+                        <span>No jobs found</span>
+                    }
+                </div>
+                
+                <div class="toolbar-actions d-flex gap-2">
+                    <button class="btn btn-icon btn-outline-secondary filter-toggle" id="filterToggle" aria-label="Toggle filters" aria-expanded="false">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                        <span class="d-none d-md-inline">Filters</span>
+                        @if (HasActiveFilters(filter))
+                        {
+                            <span class="btn-badge">@GetActiveFilterCount(filter)</span>
+                        }
+                    </button>
+                    
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" data-dropdown-toggle aria-label="Sort options">
+                            Sort: @GetSortLabel(filter.SortBy, filter.SortDirection)
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </button>
+                        <div class="dropdown-menu" role="menu">
+                            @foreach (var sort in new[] { ("PostedDate", "desc", "Newest First"), ("PostedDate", "asc", "Oldest First"), ("Title", "asc", "Title A-Z"), ("Title", "desc", "Title Z-A") })
+                            {
+                                <a href="@Url.Action("Index", new { filter.SearchTerm, filter.Location, filter.WorkMode, filter.EmploymentType, filter.MinSalary, filter.MaxSalary, SortBy = sort.Item1, SortDirection = sort.Item2 })" class="dropdown-item @((filter.SortBy == sort.Item1 && filter.SortDirection == sort.Item2) ? "active" : "")" role="menuitem">@sort.Item3</a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            @if (Model?.Items?.Any() == true)
+            {
+                <div class="jobs-grid">
+                    @foreach (var job in Model.Items)
+                    {
+                        <partial name="_JobCard" model="job" />
+                    }
+                </div>
+                
+                @if (Model.TotalPages > 1)
+                {
+                    <nav class="pagination-wrapper" aria-label="Pagination">
+                        <div class="pagination">
+                            @if (Model.HasPreviousPage)
+                            {
+                                <a href="@Url.Action("Index", new { filter.SearchTerm, filter.Location, filter.WorkMode, filter.EmploymentType, filter.MinSalary, filter.MaxSalary, filter.SortBy, filter.SortDirection, Page = Model.Page - 1 })" class="page-link" aria-label="Previous">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="page-link" aria-disabled="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg></span>
+                            }
+                            
+                            @for (var i = Math.Max(1, Model.Page - 2); i <= Math.Min(Model.TotalPages, Model.Page + 2); i++)
+                            {
+                                if (i == Model.Page)
+                                {
+                                    <span class="page-link active">@i</span>
+                                }
+                                else
+                                {
+                                    <a href="@Url.Action("Index", new { filter.SearchTerm, filter.Location, filter.WorkMode, filter.EmploymentType, filter.MinSalary, filter.MaxSalary, filter.SortBy, filter.SortDirection, Page = i })" class="page-link">@i</a>
+                                }
+                            }
+                            
+                            @if (Model.HasNextPage)
+                            {
+                                <a href="@Url.Action("Index", new { filter.SearchTerm, filter.Location, filter.WorkMode, filter.EmploymentType, filter.MinSalary, filter.MaxSalary, filter.SortBy, filter.SortDirection, Page = Model.Page + 1 })" class="page-link" aria-label="Next">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="page-link" aria-disabled="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg></span>
+                            }
+                        </div>
+                    </nav>
+                }
+            }
+            else
+            {
+                <div class="empty-state">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <h3>No jobs found</h3>
+                    <p>Try adjusting your filters or search terms to find more opportunities.</p>
+                    <a href="@Url.Action("Index")" class="btn btn-primary">Clear Filters</a>
+                </div>
+            }
+        </main>
+    </div>
+</div>
+
+@functions {
+    bool HasActiveFilters(JobPortal.MVC.Models.JobFilterRequest f)
+    {
+        return !string.IsNullOrEmpty(f.SearchTerm) ||
+               !string.IsNullOrEmpty(f.Location) ||
+               !string.IsNullOrEmpty(f.WorkMode) ||
+               !string.IsNullOrEmpty(f.EmploymentType) ||
+               f.MinSalary.HasValue ||
+               f.MaxSalary.HasValue ||
+               (f.SkillIds?.Any() == true);
+    }
+    
+    int GetActiveFilterCount(JobPortal.MVC.Models.JobFilterRequest f)
+    {
+        var count = 0;
+        if (!string.IsNullOrEmpty(f.SearchTerm)) count++;
+        if (!string.IsNullOrEmpty(f.Location)) count++;
+        if (!string.IsNullOrEmpty(f.WorkMode)) count++;
+        if (!string.IsNullOrEmpty(f.EmploymentType)) count++;
+        if (f.MinSalary.HasValue) count++;
+        if (f.MaxSalary.HasValue) count++;
+        if (f.SkillIds?.Any() == true) count += f.SkillIds.Count;
+        return count;
+    }
+    
+    string GetSortLabel(string sortBy, string sortDirection)
+    {
+        return (sortBy, sortDirection) switch
+        {
+            ("PostedDate", "desc") => "Newest First",
+            ("PostedDate", "asc") => "Oldest First",
+            ("Title", "asc") => "Title A-Z",
+            ("Title", "desc") => "Title Z-A",
+            _ => "Newest First"
+        };
+    }
+}
+
+<style>
+.jobs-page {
+    padding: 0;
+}
+
+.jobs-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 1.5rem;
+}
+
+.filters-sidebar {
+    position: sticky;
+    top: calc(var(--header-height) + 1.5rem);
+    height: fit-content;
+    max-height: calc(100vh - var(--header-height) - 3rem);
+    overflow-y: auto;
+    background: var(--bg-card);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+}
+
+.filter-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-primary);
+}
+
+.filter-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.filter-close {
+    display: none;
+}
+
+.filters-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+}
+
+.filter-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-tertiary);
+}
+
+.filter-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+.skills-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.skill-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-full);
+    font-size: 0.8125rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.skill-checkbox:hover {
+    border-color: var(--color-primary);
+}
+
+.skill-checkbox input {
+    accent-color: var(--color-primary);
+}
+
+.filter-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-primary);
+}
+
+.jobs-main {
+    min-width: 0;
+}
+
+.jobs-toolbar {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border-primary);
+    margin-bottom: 1.5rem;
+}
+
+.results-info {
+    font-size: 0.875rem;
+    color: var(--text-tertiary);
+}
+
+.toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.filter-toggle {
+    display: none;
+}
+
+.filter-toggle .btn-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    background: var(--color-danger);
+    color: white;
+    font-size: 0.625rem;
+    font-weight: 600;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.jobs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.5rem;
+}
+
+.pagination-wrapper {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-primary);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-tertiary);
+}
+
+.empty-state svg {
+    margin-bottom: 1.5rem;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    margin-bottom: 1.5rem;
+}
+
+@@media (max-width: 1024px) {
+    .jobs-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .filters-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 320px;
+        max-width: 100vw;
+        height: 100vh;
+        max-height: 100vh;
+        z-index: var(--z-modal);
+        transform: translateX(-100%);
+        transition: transform var(--transition-normal);
+        border-radius: 0;
+        border-right: 1px solid var(--border-primary);
+        padding-bottom: 2rem;
+    }
+    
+    .filters-sidebar.open {
+        transform: translateX(0);
+    }
+    
+    .filter-close {
+        display: flex;
+    }
+    
+    .sidebar-overlay.open {
+        display: block;
+    }
+    
+    .filter-toggle {
+        display: inline-flex;
+    }
+    
+    .jobs-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterToggle = document.getElementById('filterToggle');
+            const filtersSidebar = document.getElementById('filtersSidebar');
+            const filterClose = document.getElementById('filterClose');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            
+            function openFilters() {
+                filtersSidebar.classList.add('open');
+                sidebarOverlay.classList.add('open');
+                filterToggle.setAttribute('aria-expanded', 'true');
+                document.body.style.overflow = 'hidden';
+            }
+            
+            function closeFilters() {
+                filtersSidebar.classList.remove('open');
+                sidebarOverlay.classList.remove('open');
+                filterToggle.setAttribute('aria-expanded', 'false');
+                document.body.style.overflow = '';
+            }
+            
+            filterToggle.addEventListener('click', openFilters);
+            filterClose.addEventListener('click', closeFilters);
+            sidebarOverlay.addEventListener('click', closeFilters);
+            
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && filtersSidebar.classList.contains('open')) {
+                    closeFilters();
+                }
+            });
+        });
+    </script>
+}

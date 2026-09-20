@@ -84,9 +84,9 @@ public class EmployerJobController : ControllerBase
     // GET: /api/employer/jobs/{id}
     // =========================================================
 
-    [HttpGet("{id:int}")]
+    [HttpGet("{id}")]
     public async Task<IActionResult> GetById(
-        int id,
+        string id,
         CancellationToken cancellationToken)
     {
         var employerId = GetEmployerId();
@@ -117,9 +117,9 @@ public class EmployerJobController : ControllerBase
     // PUT: /api/employer/jobs/{id}
     // =========================================================
 
-    [HttpPut("{id:int}")]
+    [HttpPut("{id}")]
     public async Task<IActionResult> Update(
-        int id,
+        string id,
         [FromBody] UpdateJobDto request,
         CancellationToken cancellationToken)
     {
@@ -162,9 +162,9 @@ public class EmployerJobController : ControllerBase
     // POST: /api/employer/jobs/{id}/publish
     // =========================================================
 
-    [HttpPost("{id:int}/publish")]
+    [HttpPost("{id}/publish")]
     public async Task<IActionResult> Publish(
-        int id,
+        string id,
         CancellationToken cancellationToken)
     {
         var employerId = GetEmployerId();
@@ -205,9 +205,9 @@ public class EmployerJobController : ControllerBase
     // POST: /api/employer/jobs/{id}/close
     // =========================================================
 
-    [HttpPost("{id:int}/close")]
+    [HttpPost("{id}/close")]
     public async Task<IActionResult> Close(
-        int id,
+        string id,
         CancellationToken cancellationToken)
     {
         var employerId = GetEmployerId();

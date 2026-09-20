@@ -10,16 +10,16 @@ public interface ISavedJobService
 
     Task<SavedJobDto> SaveJobAsync(
         int userId,
-        int jobId,
+        string jobId,
         CancellationToken cancellationToken = default);
 
     Task<bool> UnsaveJobAsync(
         int userId,
-        int jobId,
+        string jobId,
         CancellationToken cancellationToken = default);
 
     Task<bool> IsJobSavedAsync(
         int userId,
-        int jobId,
+        string jobId,
         CancellationToken cancellationToken = default);
 }

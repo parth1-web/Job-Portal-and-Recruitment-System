@@ -1,12 +1,10 @@
-﻿using JobPortal.Domain.Enums;
-
-namespace JobPortal.Application.DTOs.Jobs;
+﻿namespace JobPortal.Application.DTOs.Jobs;
 
 public class CreateJobDto
 {
-    public int CompanyId { get; set; }
+    public string CompanyId { get; set; } = string.Empty;
 
-    public int CategoryId { get; set; }
+    public string CategoryId { get; set; } = string.Empty;
 
     public string Title { get; set; } = string.Empty;
 
@@ -14,24 +12,34 @@ public class CreateJobDto
 
     public string? Requirements { get; set; }
 
+    public string? Benefits { get; set; }
+
     public decimal? SalaryMin { get; set; }
 
     public decimal? SalaryMax { get; set; }
 
-    public EmploymentType EmploymentType { get; set; }
+    public string Currency { get; set; } = "USD";
 
-    public WorkMode WorkMode { get; set; }
+    public string EmploymentType { get; set; } = "FullTime";
 
-    public string? Location { get; set; }
+    public string WorkMode { get; set; } = "OnSite";
 
-    public DateTime ApplicationDeadline { get; set; }
+    public string Location { get; set; } = string.Empty;
+
+    public string? Responsibilities { get; set; }
+
+    public string? PreferredQualifications { get; set; }
+
+    public DateTime? ApplicationDeadline { get; set; }
 
     public List<CreateJobSkillDto> Skills { get; set; } = new();
+
+    public string Status { get; set; } = "Draft";
 }
 
 public class CreateJobSkillDto
 {
-    public int SkillId { get; set; }
+    public string SkillId { get; set; } = string.Empty;
 
     public bool IsRequired { get; set; }
 }

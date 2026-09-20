@@ -36,7 +36,7 @@ public class SavedJobService : ISavedJobService
 
     public async Task<SavedJobDto> SaveJobAsync(
         int userId,
-        int jobId,
+        string jobId,
         CancellationToken cancellationToken = default)
     {
         var candidate = await _candidateRepository.GetByUserIdAsync(userId, cancellationToken);
@@ -45,13 +45,18 @@ public class SavedJobService : ISavedJobService
             throw new InvalidOperationException("Candidate profile not found.");
         }
 
-        var job = await _jobRepository.GetByIdAsync(jobId, cancellationToken);
+        if (!int.TryParse(jobId, out var jobIdInt))
+        {
+            throw new InvalidOperationException("Invalid job ID.");
+        }
+
+        var job = await _jobRepository.GetByIdAsync(jobIdInt, cancellationToken);
         if (job is null)
         {
             throw new InvalidOperationException("Job not found.");
         }
 
-        var existing = await _savedJobRepository.GetAsync(candidate.Id, jobId, cancellationToken);
+        var existing = await _savedJobRepository.GetAsync(candidate.Id, jobIdInt, cancellationToken);
         if (existing is not null)
         {
             throw new InvalidOperationException("Job is already saved.");
@@ -60,7 +65,7 @@ public class SavedJobService : ISavedJobService
         var savedJob = new SavedJob
         {
             CandidateId = candidate.Id,
-            JobId = jobId,
+            JobId = jobIdInt,
             SavedAt = DateTime.UtcNow
         };
 
@@ -71,7 +76,7 @@ public class SavedJobService : ISavedJobService
 
     public async Task<bool> UnsaveJobAsync(
         int userId,
-        int jobId,
+        string jobId,
         CancellationToken cancellationToken = default)
     {
         var candidate = await _candidateRepository.GetByUserIdAsync(userId, cancellationToken);
@@ -80,7 +85,12 @@ public class SavedJobService : ISavedJobService
             return false;
         }
 
-        var savedJob = await _savedJobRepository.GetAsync(candidate.Id, jobId, cancellationToken);
+        if (!int.TryParse(jobId, out var jobIdInt))
+        {
+            return false;
+        }
+
+        var savedJob = await _savedJobRepository.GetAsync(candidate.Id, jobIdInt, cancellationToken);
         if (savedJob is null)
         {
             return false;
@@ -92,7 +102,7 @@ public class SavedJobService : ISavedJobService
 
     public async Task<bool> IsJobSavedAsync(
         int userId,
-        int jobId,
+        string jobId,
         CancellationToken cancellationToken = default)
     {
         var candidate = await _candidateRepository.GetByUserIdAsync(userId, cancellationToken);
@@ -101,7 +111,12 @@ public class SavedJobService : ISavedJobService
             return false;
         }
 
-        var savedJob = await _savedJobRepository.GetAsync(candidate.Id, jobId, cancellationToken);
+        if (!int.TryParse(jobId, out var jobIdInt))
+        {
+            return false;
+        }
+
+        var savedJob = await _savedJobRepository.GetAsync(candidate.Id, jobIdInt, cancellationToken);
         return savedJob is not null;
     }
 
@@ -109,8 +124,8 @@ public class SavedJobService : ISavedJobService
     {
         return new SavedJobDto
         {
-            CandidateId = savedJob.CandidateId,
-            JobId = savedJob.JobId,
+            CandidateId = savedJob.CandidateId.ToString(),
+            JobId = savedJob.JobId.ToString(),
             JobTitle = jobTitle,
             CompanyName = companyName,
             SavedAt = savedJob.SavedAt

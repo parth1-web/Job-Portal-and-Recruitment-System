@@ -92,7 +92,9 @@ public class AuthService : IAuthService
             Email = email,
             PasswordHash = _passwordHasher.HashPassword(request.Password),
             RoleId = role.Id,
-            IsActive = true
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
         };
 
         await _userRepository.AddAsync(user);
@@ -118,7 +120,7 @@ public class AuthService : IAuthService
             throw new ArgumentException("Password is required.");
         }
 
-        var user = await _userRepository.GetByEmailAsync(email);
+        var user = await _userRepository.GetByEmailWithProfileAsync(email);
 
         if (user is null)
         {
@@ -145,17 +147,116 @@ public class AuthService : IAuthService
         return CreateAuthResponse(user);
     }
 
+    public async Task<AuthResponseDto?> GetProfileAsync(
+        int userId,
+        CancellationToken cancellationToken = default)
+    {
+        var user = await _userRepository.GetByIdAsync(userId);
+        
+        if (user is null)
+        {
+            return null;
+        }
+
+        return CreateAuthResponse(user);
+    }
+
+    public async Task<AuthResponseDto?> UpdateProfileAsync(
+        int userId,
+        UpdateProfileRequestDto request,
+        CancellationToken cancellationToken = default)
+    {
+        var user = await _userRepository.GetByIdAsync(userId);
+        
+        if (user is null)
+        {
+            return null;
+        }
+
+        if (user.Candidate != null)
+        {
+            user.Candidate.FirstName = request.FirstName;
+            user.Candidate.LastName = request.LastName;
+            user.Candidate.PhoneNumber = request.PhoneNumber;
+        }
+        else if (user.Employer != null)
+        {
+            user.Employer.CompanyName = request.FirstName; // Using FirstName as company name for employers
+            user.Employer.CompanyLogoUrl = request.ProfileImageUrl;
+        }
+
+        user.Email = request.Email;
+        
+        await _userRepository.UpdateAsync(user);
+        await _userRepository.SaveChangesAsync();
+
+        return CreateAuthResponse(user);
+    }
+
+    public async Task<bool> ChangePasswordAsync(
+        int userId,
+        ChangePasswordRequestDto request,
+        CancellationToken cancellationToken = default)
+    {
+        if (request.NewPassword != request.ConfirmNewPassword)
+        {
+            throw new ArgumentException("New passwords do not match.");
+        }
+
+        var user = await _userRepository.GetByIdAsync(userId);
+        
+        if (user is null)
+        {
+            throw new UnauthorizedAccessException("User not found.");
+        }
+
+        if (!_passwordHasher.VerifyPassword(request.CurrentPassword, user.PasswordHash))
+        {
+            throw new ArgumentException("Current password is incorrect.");
+        }
+
+        user.PasswordHash = _passwordHasher.HashPassword(request.NewPassword);
+        await _userRepository.UpdateAsync(user);
+        await _userRepository.SaveChangesAsync();
+
+        return true;
+    }
+
     private AuthResponseDto CreateAuthResponse(User user)
     {
         var token = _jwtService.GenerateToken(user);
+        
+        string fullName = "";
+        string? phoneNumber = null;
+        string? profileImageUrl = null;
+
+        if (user.Candidate != null)
+        {
+            fullName = $"{user.Candidate.FirstName} {user.Candidate.LastName}".Trim();
+            phoneNumber = user.Candidate.PhoneNumber;
+        }
+        else if (user.Employer != null)
+        {
+            fullName = user.Employer.CompanyName;
+            profileImageUrl = user.Employer.CompanyLogoUrl;
+        }
+
+        if (string.IsNullOrWhiteSpace(fullName))
+        {
+            fullName = user.Email.Split('@')[0];
+        }
 
         return new AuthResponseDto
         {
             Token = token,
+            RefreshToken = "",
             ExpiresAt = DateTime.UtcNow.AddMinutes(60),
-            UserId = user.Id,
+            UserId = user.Id.ToString(),
             Email = user.Email,
-            Role = user.Role.Name
+            Role = user.Role.Name,
+            FullName = fullName,
+            PhoneNumber = phoneNumber,
+            ProfileImageUrl = profileImageUrl
         };
     }
 }

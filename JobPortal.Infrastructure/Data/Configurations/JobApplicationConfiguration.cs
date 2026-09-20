@@ -53,6 +53,7 @@ public class JobApplicationConfiguration : IEntityTypeConfiguration<JobApplicati
         builder.HasOne(x => x.Resume)
             .WithMany(x => x.JobApplications)
             .HasForeignKey(x => x.ResumeId)
+            .IsRequired(false)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }
