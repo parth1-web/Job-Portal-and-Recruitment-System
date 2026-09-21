@@ -1,0 +1,74 @@
+<%- include('../layout/header') %>
+
+<div class="auth-container animate-fade-in" style="min-height: calc(100vh - 10rem); display: flex; justify-content: center; align-items: center; padding: 3rem 1rem;">
+    <div class="auth-card" style="width: 100%; max-width: 440px; background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: var(--radius-2xl); padding: 2.5rem; box-shadow: var(--shadow-xl);">
+        <div class="auth-header" style="text-align: center; margin-bottom: 2rem;">
+            <a href="/" class="auth-logo" style="display: inline-flex; align-items: center; gap: 0.75rem; color: var(--color-primary); font-size: 1.5rem; font-weight: 700; text-decoration: none; margin-bottom: 1rem;">
+                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: white;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                </div>
+                <span>JobPortal</span>
+            </a>
+            <h1 class="auth-title" style="font-size: 1.75rem; font-weight: 700; color: var(--text-primary); margin: 0 0 0.5rem 0;">Welcome Back</h1>
+            <p class="auth-subtitle" style="color: var(--text-tertiary); font-size: 0.95rem; margin: 0;">Sign in to your account to continue</p>
+        </div>
+
+        <% if (locals.error) { %>
+            <div class="alert alert-danger" style="padding: 0.875rem 1rem; border-radius: var(--radius-md); margin-bottom: 1.25rem; font-size: 0.875rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: var(--color-danger);">
+                <%= locals.error %>
+            </div>
+        <% } %>
+
+        <div class="demo-accounts-box" style="background: var(--bg-tertiary); border: 1px dashed var(--border-secondary); border-radius: var(--radius-lg); padding: 1rem; margin-bottom: 1.5rem;">
+            <div style="font-size: 0.8125rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                Quick Test Accounts
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+                <button type="button" class="btn btn-sm btn-outline-primary" style="flex: 1; font-size: 0.8125rem;" onclick="fillCredentials('candidate@example.com', 'Password123!')">
+                    Candidate Alex
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" style="flex: 1; font-size: 0.8125rem;" onclick="fillCredentials('employer@example.com', 'Password123!')">
+                    Employer Sarah
+                </button>
+            </div>
+        </div>
+
+        <form method="post" action="/auth/login" class="auth-form" style="display: flex; flex-direction: column; gap: 1.25rem;">
+            <input type="hidden" name="returnUrl" value="<%= locals.returnUrl || '' %>" />
+
+            <div class="form-group">
+                <label for="email" class="form-label required" style="display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.375rem;">Email</label>
+                <input type="email" id="email" name="email" class="form-input" placeholder="Enter your email" value="<%= locals.email || '' %>" autocomplete="email" required style="width: 100%;" />
+            </div>
+
+            <div class="form-group">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.375rem;">
+                    <label for="password" class="form-label required" style="font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin: 0;">Password</label>
+                </div>
+                <input type="password" id="password" name="password" class="form-input" placeholder="Enter your password" autocomplete="current-password" required style="width: 100%;" />
+            </div>
+
+            <button type="submit" class="btn btn-primary w-full" style="padding: 0.875rem; font-weight: 600; margin-top: 0.5rem;">
+                Sign In
+            </button>
+        </form>
+
+        <p class="auth-footer" style="text-align: center; color: var(--text-tertiary); margin-top: 1.5rem; font-size: 0.875rem;">
+            Don't have an account? <a href="/auth/register" style="font-weight: 600; color: var(--color-primary); text-decoration: none;">Create one</a>
+        </p>
+    </div>
+</div>
+
+<script>
+    function fillCredentials(email, password) {
+        document.getElementById('email').value = email;
+        document.getElementById('password').value = password;
+    }
+</script>
+
+<%- include('../layout/footer') %>

@@ -1,0 +1,114 @@
+<%- include('../layout/header') %>
+
+<div class="animate-fade-in" style="max-width: 850px; margin: 0 auto; padding: 2rem 1.5rem;">
+    <div class="page-header" style="margin-bottom: 2rem;">
+        <h1 class="page-title" style="font-size: 1.875rem; font-weight: 700; color: var(--text-primary); margin: 0 0 0.25rem 0;">
+            Post a New Job
+        </h1>
+        <p class="page-subtitle" style="color: var(--text-tertiary); margin: 0;">Create a compelling job opening to attract top talent</p>
+    </div>
+
+    <% if (locals.error) { %>
+        <div class="alert alert-danger" style="padding: 0.875rem 1rem; border-radius: var(--radius-md); margin-bottom: 1.25rem; font-size: 0.875rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: var(--color-danger);">
+            <%= locals.error %>
+        </div>
+    <% } %>
+
+    <div class="card" style="background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: var(--radius-xl); padding: 2.25rem;">
+        <form method="post" action="/employerjobs/create" style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <div class="form-group">
+                <label class="form-label required" style="display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.375rem;">Job Title</label>
+                <input type="text" name="title" class="form-input" placeholder="e.g. Senior Frontend Engineer" required style="width: 100%;" />
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+                <div class="form-group">
+                    <label class="form-label required" style="display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.375rem;">Category</label>
+                    <select name="category" class="form-select" required style="width: 100%;">
+                        <% if (locals.JOB_CATEGORIES) { %>
+                            <% Object.values(locals.JOB_CATEGORIES).forEach(cat => { %>
+                                <option value="<%= cat.label %>"><%= cat.label %></option>
+                            <% }) %>
+                        <% } else { %>
+                            <option value="Software / IT">Software / IT</option>
+                            <option value="Finance / Accounting">Finance / Accounting</option>
+                            <option value="Healthcare">Healthcare</option>
+                            <option value="Design / Creative">Design / Creative</option>
+                            <option value="Marketing">Marketing</option>
+                            <option value="Engineering / Construction">Engineering / Construction</option>
+                            <option value="Education">Education</option>
+                            <option value="Sales / Retail">Sales / Retail</option>
+                            <option value="Legal">Legal</option>
+                            <option value="Hospitality / Tourism">Hospitality / Tourism</option>
+                            <option value="Other">Other</option>
+                        <% } %>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label required" style="display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.375rem;">Location</label>
+                    <input type="text" name="location" class="form-input" placeholder="e.g. San Francisco, CA or Remote" required style="width: 100%;" />
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.25rem;">
+                <div class="form-group">
+                    <label class="form-label required" style="display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.375rem;">Work Mode</label>
+                    <select name="workMode" class="form-select" required style="width: 100%;">
+                        <option value="Remote">Remote</option>
+                        <option value="Hybrid" selected>Hybrid</option>
+                        <option value="OnSite">On-Site</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label required" style="display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.375rem;">Employment Type</label>
+                    <select name="employmentType" class="form-select" required style="width: 100%;">
+                        <option value="FullTime" selected>Full Time</option>
+                        <option value="PartTime">Part Time</option>
+                        <option value="Contract">Contract</option>
+                        <option value="Internship">Internship</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label required" style="display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.375rem;">Min Salary ($/yr)</label>
+                    <input type="number" name="minSalary" class="form-input" placeholder="120000" step="1000" required style="width: 100%;" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label required" style="display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.375rem;">Max Salary ($/yr)</label>
+                    <input type="number" name="maxSalary" class="form-input" placeholder="160000" step="1000" required style="width: 100%;" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label required" style="display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.375rem;">Job Description</label>
+                <textarea name="description" class="form-textarea" rows="6" placeholder="Provide an overview of the role, team goals, and expectations..." required style="width: 100%;"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" style="display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.375rem;">Requirements (1 per line or markdown)</label>
+                <textarea name="requirements" class="form-textarea" rows="4" placeholder="• 4+ years software engineering experience...&#10;• Strong TypeScript and React skills..." style="width: 100%;"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" style="display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.375rem;">Key Responsibilities (comma or line separated)</label>
+                <textarea name="responsibilities" class="form-textarea" rows="3" placeholder="Design microservices architecture&#10;Conduct code reviews and mentor junior staff" style="width: 100%;"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" style="display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.375rem;">Required Skills (comma separated)</label>
+                <input type="text" name="skills" class="form-input" placeholder="e.g. React, TypeScript, Node.js, AWS" style="width: 100%;" />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" style="display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.375rem;">Benefits & Perks</label>
+                <input type="text" name="benefits" class="form-input" placeholder="e.g. 401(k) matching, comprehensive medical, unlimited PTO" style="width: 100%;" />
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem;">
+                <a href="/employerdashboard/jobs" class="btn btn-outline-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Publish Job Opening</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<%- include('../layout/footer') %>

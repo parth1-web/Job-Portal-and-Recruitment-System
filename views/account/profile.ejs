@@ -1,0 +1,68 @@
+<%- include('../layout/header') %>
+
+<div class="animate-fade-in" style="max-width: 800px; margin: 0 auto; padding: 2rem 1.5rem;">
+    <div class="page-header" style="margin-bottom: 2rem;">
+        <h1 class="page-title" style="font-size: 1.875rem; font-weight: 700; color: var(--text-primary); margin: 0 0 0.25rem 0;">
+            User Profile
+        </h1>
+        <p class="page-subtitle" style="color: var(--text-tertiary); margin: 0;">Manage your personal and professional profile details</p>
+    </div>
+
+    <% if (locals.success) { %>
+        <div class="alert alert-success" style="padding: 0.875rem 1rem; border-radius: var(--radius-md); margin-bottom: 1.25rem; font-size: 0.875rem; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: var(--color-success);">
+            <%= locals.success %>
+        </div>
+    <% } %>
+
+    <div class="card" style="background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: var(--radius-xl); padding: 2rem;">
+        <form method="post" action="/account/profile" style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <div style="display: flex; align-items: center; gap: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-primary);">
+                <div style="width: 72px; height: 72px; border-radius: var(--radius-xl); background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)); display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 700; color: white;">
+                    <%= locals.user.name.charAt(0).toUpperCase() %>
+                </div>
+                <div>
+                    <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700; color: var(--text-primary);"><%= locals.user.name %></h3>
+                    <p style="margin: 0.25rem 0 0; color: var(--text-tertiary); font-size: 0.875rem;"><%= locals.user.email %> &middot; <%= locals.user.role %></p>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+                <div class="form-group">
+                    <label class="form-label" style="display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.375rem;">Full Name</label>
+                    <input type="text" name="name" class="form-input" value="<%= locals.user.name %>" required style="width: 100%;" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" style="display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.375rem;">Professional Title</label>
+                    <input type="text" name="title" class="form-input" value="<%= locals.user.title || '' %>" placeholder="e.g. Senior Full-Stack Engineer" style="width: 100%;" />
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+                <div class="form-group">
+                    <label class="form-label" style="display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.375rem;">Location</label>
+                    <input type="text" name="location" class="form-input" value="<%= locals.user.location || '' %>" placeholder="e.g. San Francisco, CA" style="width: 100%;" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" style="display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.375rem;">Phone Number</label>
+                    <input type="text" name="phone" class="form-input" value="<%= locals.user.phone || '' %>" placeholder="e.g. +1 (555) 000-0000" style="width: 100%;" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" style="display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.375rem;">Professional Bio</label>
+                <textarea name="bio" class="form-textarea" rows="4" style="width: 100%; font-size: 0.875rem;"><%= locals.user.bio || '' %></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" style="display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.375rem;">Skills (comma separated)</label>
+                <input type="text" name="skills" class="form-input" value="<%= (locals.user.skills || []).join(', ') %>" placeholder="e.g. React, TypeScript, Node.js, C#" style="width: 100%;" />
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem;">
+                <button type="submit" class="btn btn-primary">Save Profile Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<%- include('../layout/footer') %>
