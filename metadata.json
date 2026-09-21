@@ -1,6 +1,0 @@
-{
-  "name": "JobPortal",
-  "description": "A comprehensive job portal and recruitment system connecting employers and candidates.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}

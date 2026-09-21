@@ -1,0 +1,364 @@
+@model JobPortal.MVC.Models.PagedResult<JobPortal.MVC.Models.NotificationDto>
+@{
+    ViewData["Title"] = "Notifications";
+    ViewData["PageTitle"] = "Notifications";
+    ViewData["UserRole"] = User.FindFirst("role")?.Value ?? User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+}
+
+<div class="notifications-page animate-fade-in">
+    <div class="page-header d-flex justify-between items-center flex-wrap gap-3">
+        <div>
+            <h1 class="page-title">
+                <span class="page-title-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                </span>
+                Notifications
+            </h1>
+            <p class="page-subtitle">Stay updated with your account activity</p>
+        </div>
+        <div class="d-flex gap-2">
+            @if (Model?.Items?.Any(n => !n.IsRead) == true)
+            {
+                <button class="btn btn-primary" id="markAllReadBtn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    Mark All Read
+                </button>
+            }
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" data-dropdown-toggle>
+                    Filter
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
+                <div class="dropdown-menu" role="menu">
+                    <a href="@Url.Action("Index")" class="dropdown-item active" role="menuitem">All</a>
+                    <a href="@Url.Action("Index", new { unread = true })" class="dropdown-item" role="menuitem">Unread Only</a>
+                    <a href="@Url.Action("Index", new { type = "info" })" class="dropdown-item" role="menuitem">Info</a>
+                    <a href="@Url.Action("Index", new { type = "success" })" class="dropdown-item" role="menuitem">Success</a>
+                    <a href="@Url.Action("Index", new { type = "warning" })" class="dropdown-item" role="menuitem">Warning</a>
+                    <a href="@Url.Action("Index", new { type = "danger" })" class="dropdown-item" role="menuitem">Error</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model?.Items?.Any() == true)
+    {
+        <div class="notifications-list">
+            @foreach (var notification in Model.Items)
+            {
+                <article class="notification-item @(!notification.IsRead ? "unread" : "")" data-notification-id="@notification.Id">
+                    <div class="notification-icon @notification.Type.ToLower()">
+                        @GetNotificationIcon(notification.Type)
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-header d-flex justify-between items-start">
+                            <h4 class="notification-title">@notification.Title</h4>
+                            <time class="notification-time" datetime="@notification.CreatedAt.ToString("o")">@notification.CreatedAt.ToString("MMM dd, yyyy HH:mm")</time>
+                        </div>
+                        <p class="notification-message">@notification.Message</p>
+                        @if (!string.IsNullOrEmpty(notification.ActionUrl))
+                        {
+                            <a href="@notification.ActionUrl" class="notification-action">View Details</a>
+                        }
+                    </div>
+                    <div class="notification-actions">
+                        @if (!notification.IsRead)
+                        {
+                            <button class="btn btn-icon btn-ghost mark-read-btn" data-notification-id="@notification.Id" aria-label="Mark as read">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </button>
+                        }
+                    </div>
+                </article>
+            }
+        </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            <nav class="pagination-wrapper" aria-label="Pagination">
+                <div class="pagination">
+                    @if (Model.HasPreviousPage)
+                    {
+                        <a href="@Url.Action("Index", new { Page = Model.Page - 1 })" class="page-link" aria-label="Previous">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                        </a>
+                    }
+                    
+                    @for (var i = Math.Max(1, Model.Page - 2); i <= Math.Min(Model.TotalPages, Model.Page + 2); i++)
+                    {
+                        if (i == Model.Page)
+                        {
+                            <span class="page-link active">@i</span>
+                        }
+                        else
+                        {
+                            <a href="@Url.Action("Index", new { Page = i })" class="page-link">@i</a>
+                        }
+                    }
+                    
+                    @if (Model.HasNextPage)
+                    {
+                        <a href="@Url.Action("Index", new { Page = Model.Page + 1 })" class="page-link" aria-label="Next">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </a>
+                    }
+                </div>
+            </nav>
+        }
+    }
+    else
+    {
+        <div class="empty-state">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            <h3>No notifications</h3>
+            <p>You're all caught up! New notifications will appear here.</p>
+        </div>
+    }
+</div>
+
+@functions {
+    string GetNotificationIcon(string type)
+    {
+        return type?.ToLower() switch
+        {
+            "success" => "<svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M22 11.08V12a10 10 0 1 1-5.93-9.14\"/><polyline points=\"22 4 12 14.01 9 11.01\"></polyline></svg>",
+            "warning" => "<svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z\"/><line x1=\"12\" y1=\"9\" x2=\"12\" y2=\"13\"/><line x1=\"12\" y1=\"17\" x2=\"12.01\" y2=\"17\"></svg>",
+            "danger" => "<svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"15\" y1=\"9\" x2=\"9\" y2=\"15\"/><line x1=\"9\" y1=\"9\" x2=\"15\" y2=\"15\"></svg>",
+            _ => "<svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"12\" y1=\"16\" x2=\"12\" y2=\"12\"/><line x1=\"12\" y1=\"8\" x2=\"12.01\" y2=\"8\"></svg>"
+        };
+    }
+}
+
+<style>
+.notifications-page {
+    padding: 0;
+}
+
+.notifications-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.notification-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-xl);
+    transition: all var(--transition-fast);
+}
+
+.notification-item:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--border-secondary);
+}
+
+.notification-item.unread {
+    background: rgba(99, 102, 241, 0.05);
+    border-color: rgba(99, 102, 241, 0.2);
+}
+
+.notification-item.unread::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--color-primary);
+    border-radius: var(--radius-xl) 0 0 var(--radius-xl);
+}
+
+.notification-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.notification-icon.info { background: rgba(6, 182, 212, 0.15); color: var(--color-info); }
+.notification-icon.success { background: rgba(16, 185, 129, 0.15); color: var(--color-success); }
+.notification-icon.warning { background: rgba(245, 158, 11, 0.15); color: var(--color-warning); }
+.notification-icon.danger { background: rgba(239, 68, 68, 0.15); color: var(--color-danger); }
+
+.notification-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-header {
+    margin-bottom: 0.5rem;
+}
+
+.notification-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-right: 1rem;
+}
+
+.notification-time {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.notification-message {
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+}
+
+.notification-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-primary);
+}
+
+.notification-action:hover {
+    text-decoration: underline;
+}
+
+.notification-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.pagination-wrapper {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-primary);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-tertiary);
+}
+
+.empty-state svg {
+    margin-bottom: 1.5rem;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+@@media (max-width: 640px) {
+    .notification-item {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .notification-actions {
+        flex-direction: row;
+        justify-content: flex-end;
+    }
+    
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+</style>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const markAllReadBtn = document.getElementById('markAllReadBtn');
+            const markReadBtns = document.querySelectorAll('.mark-read-btn');
+
+            function csrfHeaders() {
+                return {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': window.appConfig?.csrfToken || ''
+                };
+            }
+
+            async function markAsRead(notificationId) {
+                try {
+                    const response = await fetch(`/Notifications/MarkRead?id=${encodeURIComponent(notificationId)}`, {
+                        method: 'POST',
+                        headers: csrfHeaders()
+                    });
+                    
+                    if (response.ok) {
+                        const item = document.querySelector(`[data-notification-id="${notificationId}"]`);
+                        if (item) {
+                            item.classList.remove('unread');
+                            const markReadBtn = item.querySelector('.mark-read-btn');
+                            if (markReadBtn) markReadBtn.remove();
+                        }
+                        
+                        updateUnreadCount();
+                    }
+                } catch (e) {
+                    console.error('Failed to mark as read', e);
+                }
+            }
+            
+            function updateUnreadCount() {
+                const badge = document.getElementById('notificationBadge');
+                const unreadItems = document.querySelectorAll('.notification-item.unread');
+                if (badge) {
+                    const count = unreadItems.length;
+                    if (count > 0) {
+                        badge.textContent = count > 99 ? '99+' : count;
+                        badge.style.display = 'flex';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+            }
+            
+            markReadBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const notificationId = this.getAttribute('data-notification-id');
+                    markAsRead(notificationId);
+                });
+            });
+            
+            if (markAllReadBtn) {
+                markAllReadBtn.addEventListener('click', async function() {
+                    try {
+                        const response = await fetch('/Notifications/MarkAllRead', {
+                            method: 'POST',
+                            headers: csrfHeaders()
+                        });
+                        
+                        if (response.ok) {
+                            document.querySelectorAll('.notification-item.unread').forEach(item => {
+                                item.classList.remove('unread');
+                                const markReadBtn = item.querySelector('.mark-read-btn');
+                                if (markReadBtn) markReadBtn.remove();
+                            });
+                            
+                            updateUnreadCount();
+                            this.remove();
+                        }
+                    } catch (e) {
+                        console.error('Failed to mark all as read', e);
+                    }
+                });
+            }
+        });
+    </script>
+}

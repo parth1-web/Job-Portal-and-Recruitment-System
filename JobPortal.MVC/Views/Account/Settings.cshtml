@@ -1,0 +1,481 @@
+@model JobPortal.MVC.Models.UserProfile
+@{
+    ViewData["Title"] = "Settings";
+    ViewData["PageTitle"] = "Account Settings";
+    ViewData["UserRole"] = User.FindFirst("role")?.Value ?? User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+}
+
+<div class="settings-page animate-fade-in">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <span class="page-title-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                </span>
+                Account Settings
+            </h1>
+            <p class="page-subtitle">Manage your account settings and preferences</p>
+        </div>
+    </div>
+
+    <div class="settings-layout">
+        <nav class="settings-sidebar">
+            <div class="card">
+                <ul class="settings-nav">
+                    <li class="settings-nav-item">
+                        <a href="@Url.Action("Settings", "Account")" class="settings-nav-link active" data-tab="profile">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                            <span>Profile</span>
+                        </a>
+                    </li>
+                    <li class="settings-nav-item">
+                        <a href="@Url.Action("Settings", "Account")" class="settings-nav-link" data-tab="security">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                            <span>Security</span>
+                        </a>
+                    </li>
+                    <li class="settings-nav-item">
+                        <a href="@Url.Action("Settings", "Account")" class="settings-nav-link" data-tab="notifications">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                            <span>Notifications</span>
+                        </a>
+                    </li>
+                    <li class="settings-nav-item">
+                        <a href="@Url.Action("Settings", "Account")" class="settings-nav-link" data-tab="appearance">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                            <span>Appearance</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <div class="settings-content">
+            <div class="settings-tab-panel active" id="profile-tab">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Profile Information</h3>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" asp-action="UpdateProfile" class="settings-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="FirstName" class="form-label required">First Name</label>
+                                    <input type="text" id="FirstName" name="FirstName" class="form-input" placeholder="John" value="@(Model?.FullName?.Split(' ')[0] ?? "")" required />
+                                </div>
+                                <div class="form-group">
+                                    <label for="LastName" class="form-label required">Last Name</label>
+                                    <input type="text" id="LastName" name="LastName" class="form-input" placeholder="Doe" value="@(Model?.FullName?.Split(' ').Length > 1 ? string.Join(" ", Model.FullName.Split(' ').Skip(1)) : "")" required />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="Email" class="form-label required">Email</label>
+                                <input type="email" id="Email" name="Email" class="form-input" placeholder="you@example.com" value="@Model?.Email" required />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="PhoneNumber" class="form-label">Phone Number</label>
+                                <input type="tel" id="PhoneNumber" name="PhoneNumber" class="form-input" placeholder="+1 (555) 000-0000" value="@Model?.PhoneNumber" />
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-tab-panel" id="security-tab">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Change Password</h3>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" asp-action="ChangePassword" class="settings-form">
+                            <div class="form-group">
+                                <label for="CurrentPassword" class="form-label required">Current Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></span>
+                                    <input type="password" id="CurrentPassword" name="CurrentPassword" class="form-input" placeholder="Enter current password" autocomplete="current-password" required />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="NewPassword" class="form-label required">New Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></span>
+                                    <input type="password" id="NewPassword" name="NewPassword" class="form-input" placeholder="Enter new password" autocomplete="new-password" required data-password-strength />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="ConfirmNewPassword" class="form-label required">Confirm New Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></span>
+                                    <input type="password" id="ConfirmNewPassword" name="ConfirmNewPassword" class="form-input" placeholder="Confirm new password" autocomplete="new-password" required />
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Update Password</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h3 class="card-title">Two-Factor Authentication</h3>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-tertiary mb-4">Add an extra layer of security to your account.</p>
+                        <button class="btn btn-outline-secondary">Enable 2FA</button>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h3 class="card-title">Active Sessions</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="session-list">
+                            <div class="session-item d-flex justify-between items-center p-3 bg-secondary rounded-lg">
+                                <div>
+                                    <div class="font-medium">Current Session</div>
+                                    <div class="text-sm text-tertiary">Chrome on Windows • Active now</div>
+                                </div>
+                                <span class="badge badge-success">Active</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-outline-danger mt-3 w-full">Log out of all other sessions</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-tab-panel" id="notifications-tab">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Email Notifications</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="settings-options">
+                            <label class="setting-item">
+                                <div class="setting-info">
+                                    <strong>Job Alerts</strong>
+                                    <p>Receive emails when new jobs match your preferences</p>
+                                </div>
+                                <input type="checkbox" class="form-switch-input" checked />
+                            </label>
+                            <label class="setting-item">
+                                <div class="setting-info">
+                                    <strong>Application Updates</strong>
+                                    <p>Get notified when your application status changes</p>
+                                </div>
+                                <input type="checkbox" class="form-switch-input" checked />
+                            </label>
+                            <label class="setting-item">
+                                <div class="setting-info">
+                                    <strong>Interview Reminders</strong>
+                                    <p>Receive reminders before scheduled interviews</p>
+                                </div>
+                                <input type="checkbox" class="form-switch-input" checked />
+                            </label>
+                            <label class="setting-item">
+                                <div class="setting-info">
+                                    <strong>Weekly Digest</strong>
+                                    <p>Weekly summary of new jobs and recommendations</p>
+                                </div>
+                                <input type="checkbox" class="form-switch-input" />
+                            </label>
+                            <label class="setting-item">
+                                <div class="setting-info">
+                                    <strong>Marketing Emails</strong>
+                                    <p>Receive tips, updates, and promotional content</p>
+                                </div>
+                                <input type="checkbox" class="form-switch-input" />
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-tab-panel" id="appearance-tab">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Theme</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="theme-selector">
+                            @foreach (var theme in new[] { ("light", "Light", "☀️"), ("dark", "Dark", "🌙"), ("blue", "Blue", "🔵"), ("green", "Green", "🟢"), ("purple", "Purple", "🟣") })
+                            {
+                                <button class="theme-option @(theme.Item1 == (ViewData["Theme"]?.ToString() ?? "light") ? "active" : "")" data-theme="@theme.Item1" data-theme-toggle>
+                                    <span class="theme-icon">@theme.Item3</span>
+                                    <span class="theme-name">@theme.Item2</span>
+                                    @if (theme.Item1 == (ViewData["Theme"]?.ToString() ?? "light")) { <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> }
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h3 class="card-title">Display Options</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="settings-options">
+                            <label class="setting-item">
+                                <div class="setting-info">
+                                    <strong>Compact Mode</strong>
+                                    <p>Reduce spacing to show more content</p>
+                                </div>
+                                <input type="checkbox" class="form-switch-input" />
+                            </label>
+                            <label class="setting-item">
+                                <div class="setting-info">
+                                    <strong>Animations</strong>
+                                    <p>Enable smooth transitions and animations</p>
+                                </div>
+                                <input type="checkbox" class="form-switch-input" checked />
+                            </label>
+                            <label class="setting-item">
+                                <div class="setting-info">
+                                    <strong>Auto-save Drafts</strong>
+                                    <p>Automatically save application drafts</p>
+                                </div>
+                                <input type="checkbox" class="form-switch-input" checked />
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.settings-page {
+    padding: 0;
+}
+
+.settings-layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 1.5rem;
+}
+
+.settings-sidebar {
+    position: sticky;
+    top: calc(var(--header-height) + 1.5rem);
+    height: fit-content;
+}
+
+.settings-nav {
+    list-style: none;
+    padding: 0.5rem 0;
+}
+
+.settings-nav-item {
+    margin-bottom: 0.25rem;
+}
+
+.settings-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all var(--transition-fast);
+}
+
+.settings-nav-link:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.settings-nav-link.active {
+    background: var(--sidebar-active-bg);
+    color: var(--sidebar-active-text);
+}
+
+.settings-content {
+    min-width: 0;
+}
+
+.settings-tab-panel {
+    display: none;
+}
+
+.settings-tab-panel.active {
+    display: block;
+    animation: fadeIn var(--transition-fast) ease-out;
+}
+
+.settings-form {
+    margin-top: 1rem;
+}
+
+.settings-options {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.setting-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-primary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.setting-item:hover {
+    border-color: var(--color-primary);
+    background: rgba(var(--color-primary-rgb), 0.05);
+}
+
+.setting-info strong {
+    display: block;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.setting-info p {
+    font-size: 0.8125rem;
+    color: var(--text-tertiary);
+    margin: 0;
+}
+
+.theme-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 0.75rem;
+}
+
+.theme-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1.5rem 1rem;
+    border: 2px solid var(--border-primary);
+    border-radius: var(--radius-lg);
+    background: var(--bg-input);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.theme-option:hover {
+    border-color: var(--color-primary);
+    background: rgba(var(--color-primary-rgb), 0.05);
+}
+
+.theme-option.active {
+    border-color: var(--color-primary);
+    background: rgba(var(--color-primary-rgb), 0.1);
+    box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.15);
+}
+
+.theme-icon {
+    font-size: 2rem;
+}
+
+.theme-name {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.session-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.session-item {
+    transition: all var(--transition-fast);
+}
+
+.session-item:hover {
+    background: var(--bg-tertiary) !important;
+}
+
+@@media (max-width: 1024px) {
+    .settings-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .settings-sidebar {
+        position: static;
+    }
+    
+    .settings-nav {
+        display: flex;
+        overflow-x: auto;
+        gap: 0.5rem;
+        padding-bottom: 0.5rem;
+    }
+    
+    .settings-nav-item {
+        margin-bottom: 0;
+        flex-shrink: 0;
+    }
+    
+    .theme-selector {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+</style>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.settings-nav-link');
+            const tabPanels = document.querySelectorAll('.settings-tab-panel');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const tabId = this.getAttribute('data-tab') + '-tab';
+                    
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    tabPanels.forEach(panel => panel.classList.remove('active'));
+                    document.getElementById(tabId)?.classList.add('active');
+                    
+                    window.history.replaceState(null, '', '#' + tabId);
+                });
+            });
+            
+            const themeOptions = document.querySelectorAll('.theme-option');
+            themeOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const theme = this.getAttribute('data-theme');
+                    document.documentElement.setAttribute('data-theme', theme);
+                    localStorage.setItem('jobportal-theme', theme);
+                    
+                    themeOptions.forEach(o => o.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+            const hash = window.location.hash.substring(1);
+            if (hash) {
+                const link = document.querySelector(`.settings-nav-link[data-tab="${hash.replace('-tab', '')}"]`);
+                if (link) {
+                    link.click();
+                }
+            }
+        });
+    </script>
+}

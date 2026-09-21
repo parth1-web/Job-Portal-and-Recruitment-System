@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitignore" />
+  </Folder>
+  <Project Path="JobPortal.API/JobPortal.API.csproj" />
+  <Project Path="JobPortal.Application/JobPortal.Application.csproj" />
+  <Project Path="JobPortal.Domain/JobPortal.Domain.csproj" />
+  <Project Path="JobPortal.Infrastructure/JobPortal.Infrastructure.csproj" />
+  <Project Path="JobPortal.MVC/JobPortal.MVC.csproj" />
+  <Project Path="JobPortal.Tests/JobPortal.Tests.csproj" />
+</Solution>

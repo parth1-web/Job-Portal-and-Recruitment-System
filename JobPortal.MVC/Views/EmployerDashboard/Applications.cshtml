@@ -1,0 +1,89 @@
+@model JobPortal.MVC.Models.PagedResult<JobPortal.MVC.Models.JobApplicationDto>
+@{
+    ViewData["Title"] = "Applications";
+    var jobId = ViewData["JobId"]?.ToString();
+}
+
+<div class="animate-fade-in">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <span class="page-title-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                </span>
+                @(string.IsNullOrEmpty(jobId) ? "All Applications" : "Job Applications")
+            </h1>
+            <p class="page-subtitle">Review candidates and update their status</p>
+        </div>
+        @if (!string.IsNullOrEmpty(jobId))
+        {
+            <a href="@Url.Action("Applications")" class="btn btn-outline-secondary">All Applications</a>
+        }
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="card mb-4"><div class="card-body" style="border-left: 4px solid var(--color-success);">@TempData["SuccessMessage"]</div></div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="card mb-4"><div class="card-body" style="border-left: 4px solid var(--color-danger);">@TempData["ErrorMessage"]</div></div>
+    }
+
+    @if (Model?.Items?.Any() == true)
+    {
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr><th>Candidate</th><th>Job</th><th>Applied</th><th>Status</th><th></th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var app in Model.Items)
+                    {
+                        <tr>
+                            <td>
+                                <div class="font-medium">@app.CandidateName</div>
+                                <div class="text-sm text-tertiary">@app.CandidateEmail</div>
+                                @if (!string.IsNullOrEmpty(app.CoverLetter))
+                                {
+                                    <details class="mt-1"><summary class="text-sm text-link cursor-pointer">Cover letter</summary><p class="text-sm mt-1" style="white-space: pre-line;">@app.CoverLetter</p></details>
+                                }
+                            </td>
+                            <td><a class="table-cell-link" href="@Url.Action("Details", "EmployerJobs", new { id = app.JobId })">@app.JobTitle</a></td>
+                            <td>@app.AppliedAt.ToString("MMM dd, yyyy")</td>
+                            <td><span class="badge badge-soft">@app.Status</span></td>
+                            <td>
+                                <div class="table-actions">
+                                    <a class="btn btn-sm btn-outline-secondary" href="@Url.Action("UpdateStatus", new { jobId = app.JobId, applicationId = app.Id })">Review</a>
+                                    <a class="btn btn-sm btn-outline" href="@Url.Action("ScheduleInterview", new { jobId = app.JobId, applicationId = app.Id })">Interview</a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            <nav class="pagination" aria-label="Pagination">
+                @if (Model.HasPreviousPage)
+                {
+                    <a class="page-link" href="@Url.Action("Applications", new { jobId, page = Model.Page - 1 })">Previous</a>
+                }
+                <span class="page-link active">@Model.Page of @Model.TotalPages</span>
+                @if (Model.HasNextPage)
+                {
+                    <a class="page-link" href="@Url.Action("Applications", new { jobId, page = Model.Page + 1 })">Next</a>
+                }
+            </nav>
+        }
+    }
+    else
+    {
+        <div class="card"><div class="card-body text-center">
+            <h3 class="text-primary">No applications yet</h3>
+            <p class="text-tertiary">Applications from candidates will appear here.</p>
+        </div></div>
+    }
+</div>

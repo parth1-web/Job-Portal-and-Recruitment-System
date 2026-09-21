@@ -1,0 +1,48 @@
+@model JobPortal.MVC.Models.UpdateApplicationStatusRequest
+@{
+    ViewData["Title"] = "Review Application";
+    var jobId = ViewData["JobId"]?.ToString();
+    var applicationId = ViewData["ApplicationId"]?.ToString();
+}
+
+<div class="animate-fade-in">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Review Application</h1>
+            <p class="page-subtitle">Update the candidate's application status</p>
+        </div>
+        <a href="@Url.Action("Applications", new { jobId })" class="btn btn-outline-secondary">Back to Applications</a>
+    </div>
+
+    <div class="card" style="max-width: 640px;">
+        <div class="card-body">
+            <form method="post" asp-action="UpdateStatus" asp-route-jobId="@jobId" asp-route-applicationId="@applicationId">
+                @Html.AntiForgeryToken()
+                <div class="form-group">
+                    <label for="Status" class="form-label required">Status</label>
+                    <select id="Status" name="Status" class="form-select" required>
+                        @foreach (var s in new[] { "Pending", "Reviewed", "Shortlisted", "Interview", "Accepted", "Rejected" })
+                        {
+                            if (Model.Status == s)
+                            {
+                                <option value="@s" selected>@s</option>
+                            }
+                            else
+                            {
+                                <option value="@s">@s</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="Notes" class="form-label">Note for the record</label>
+                    <textarea id="Notes" name="Notes" class="form-textarea" rows="4" maxlength="1000" placeholder="Optional internal note...">@Model.Notes</textarea>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">Save Status</button>
+                    <a href="@Url.Action("ScheduleInterview", new { jobId, applicationId })" class="btn btn-outline">Schedule Interview Instead</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

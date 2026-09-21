@@ -1,0 +1,204 @@
+@model JobPortal.MVC.Models.UserProfile
+@{
+    ViewData["Title"] = "Profile";
+    ViewData["PageTitle"] = "My Profile";
+    ViewData["UserRole"] = User.FindFirst("role")?.Value ?? User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+}
+
+<div class="profile-page animate-fade-in">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <span class="page-title-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </span>
+                My Profile
+            </h1>
+            <p class="page-subtitle">Manage your personal information and preferences</p>
+        </div>
+    </div>
+
+    <div class="profile-layout">
+        <div class="profile-sidebar">
+            <div class="card">
+                <div class="card-body text-center p-6">
+                    <div class="avatar avatar-xl mx-auto mb-4" style="background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));">
+                        @(Model?.FullName?.Substring(0, 1).ToUpper() ?? "U")
+                    </div>
+                    <h3 class="text-primary mb-1">@(Model?.FullName ?? "User")</h3>
+                    <p class="text-tertiary mb-1">@(Model?.Email ?? "user@example.com")</p>
+                    <span class="badge badge-soft">@(Model?.Role ?? "User")</span>
+                </div>
+            </div>
+
+            <nav class="card mt-4">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="@Url.Action("Profile", "Account")" class="nav-link active">
+                            <span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
+                            <span class="nav-text">Profile</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="@Url.Action("Settings", "Account")" class="nav-link">
+                            <span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></span>
+                            <span class="nav-text">Settings</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="@Url.Action("Index", "Notifications")" class="nav-link">
+                            <span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></span>
+                            <span class="nav-text">Notifications</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="profile-content">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Personal Information</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" asp-action="UpdateProfile" class="profile-form">
+                        <input type="hidden" name="FirstName" value="@(Model?.FullName?.Split(' ')[0] ?? "")" />
+                        <input type="hidden" name="LastName" value="@(Model?.FullName?.Split(' ').Length > 1 ? string.Join(" ", Model.FullName.Split(' ').Skip(1)) : "")" />
+                        <input type="hidden" name="Email" value="@Model?.Email" />
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="FirstName" class="form-label required">First Name</label>
+                                <input type="text" id="FirstName" name="FirstName" class="form-input" placeholder="John" value="@(Model?.FullName?.Split(' ')[0] ?? "")" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="LastName" class="form-label required">Last Name</label>
+                                <input type="text" id="LastName" name="LastName" class="form-input" placeholder="Doe" value="@(Model?.FullName?.Split(' ').Length > 1 ? string.Join(" ", Model.FullName.Split(' ').Skip(1)) : "")" required />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Email" class="form-label required">Email</label>
+                            <input type="email" id="Email" name="Email" class="form-input" placeholder="you@example.com" value="@Model?.Email" required />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="PhoneNumber" class="form-label">Phone Number</label>
+                            <input type="tel" id="PhoneNumber" name="PhoneNumber" class="form-input" placeholder="+1 (555) 000-0000" value="@Model?.PhoneNumber" />
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+
+            @if (Model?.Role == "Candidate")
+            {
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h3 class="card-title">Candidate Profile</h3>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-tertiary mb-4">Complete your candidate profile to get better job matches and increase your visibility to employers.</p>
+                        <a href="@Url.Action("Index", "CandidateProfile")" class="btn btn-primary">Complete Profile</a>
+                    </div>
+                </div>
+            }
+            else if (Model?.Role == "Employer")
+            {
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h3 class="card-title">Company Profile</h3>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-tertiary mb-4">Manage your company profile to attract top talent and showcase your employer brand.</p>
+                        <a href="@Url.Action("CompanyProfile", "EmployerDashboard")" class="btn btn-primary">Manage Company</a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+.profile-page {
+    padding: 0;
+}
+
+.profile-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 1.5rem;
+}
+
+.profile-sidebar {
+    position: sticky;
+    top: calc(var(--header-height) + 1.5rem);
+    height: fit-content;
+}
+
+.nav-list {
+    list-style: none;
+    padding: 0.5rem 0;
+}
+
+.nav-item {
+    margin-bottom: 0.25rem;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all var(--transition-fast);
+}
+
+.nav-link:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.nav-link.active {
+    background: var(--sidebar-active-bg);
+    color: var(--sidebar-active-text);
+}
+
+.nav-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-content {
+    min-width: 0;
+}
+
+.profile-form {
+    margin-top: 1rem;
+}
+
+@@media (max-width: 1024px) {
+    .profile-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .profile-sidebar {
+        position: static;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+}
+</style>

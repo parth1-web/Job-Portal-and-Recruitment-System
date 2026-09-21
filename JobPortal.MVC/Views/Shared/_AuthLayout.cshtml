@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="@(ViewData["Theme"]?.ToString() ?? "light")">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="@ViewData["Description"]" />
+    <meta name="theme-color" content="#6366f1" />
+    <title>@ViewData["Title"] - JobPortal</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="~/css/styles.css" asp-append-version="true" />
+    
+    @RenderSection("Styles", required: false)
+    
+    @inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+    
+    <script>
+        window.appConfig = {
+            apiBaseUrl: '@Configuration["ApiSettings:BaseUrl"]',
+            csrfToken: '@ViewData["CSRFToken"]'
+        };
+    </script>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <div id="app" class="page-wrapper auth-layout">
+        <main class="main-content no-sidebar" id="mainContent" role="main">
+            <div class="content-area auth-layout">
+                @RenderBody()
+            </div>
+        </main>
+    </div>
+    
+    <script src="~/js/theme.js" asp-append-version="true"></script>
+    <script src="~/js/app.js" asp-append-version="true"></script>
+    
+    @RenderSection("Scripts", required: false)
+    @await RenderSectionAsync("InlineScripts", required: false)
+</body>
+</html>
