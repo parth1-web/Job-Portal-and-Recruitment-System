@@ -1,0 +1,6 @@
+{
+  "name": "JobPortal Recruitment System",
+  "description": "A comprehensive job portal and recruitment management platform for candidates and employers to search jobs, submit applications, manage profiles, and schedule interviews.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
