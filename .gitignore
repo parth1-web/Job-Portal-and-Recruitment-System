@@ -1,6 +1,7 @@
 # Build output
 bin/
 obj/
+node_modules/
 
 # Visual Studio
 .vs/

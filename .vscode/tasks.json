@@ -1,0 +1,22 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run .NET Backend",
+      "type": "shell",
+      "command": "dotnet run --project JobPortal.API/JobPortal.API.csproj",
+      "problemMatcher": "$msCompile",
+      "isBackground": true
+    },
+    {
+      "label": "Run React Frontend",
+      "type": "shell",
+      "command": "$frontendPort = Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue; if ($frontendPort) { Write-Host 'Frontend is already running on http://localhost:3000'; exit 0 }; npm run dev",
+      "isBackground": true
+    },
+    {
+      "label": "Run Complete Fullstack App",
+      "dependsOn": ["Run .NET Backend", "Run React Frontend"]
+    }
+  ]
+}
