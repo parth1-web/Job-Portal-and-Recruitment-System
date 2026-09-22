@@ -52,6 +52,8 @@ export interface Company {
   employerId: string;
 }
 
+export type CompanyProfile = Company;
+
 export type EmploymentType = 'Full-Time' | 'Part-Time' | 'Contract' | 'Internship' | 'Remote';
 export type WorkMode = 'On-site' | 'Remote' | 'Hybrid';
 export type JobStatus = 'Active' | 'Closed' | 'Draft';

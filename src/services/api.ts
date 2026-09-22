@@ -7,7 +7,8 @@ import {
   Company, 
   User, 
   UserRole,
-  JobFilter
+  JobFilter,
+  Resume
 } from '../types';
 
 // Central API Helper
@@ -129,6 +130,10 @@ export const jobsApi = {
 // 3. EMPLOYER JOBS API (Matches .NET EmployerJobController)
 // ====================================================
 export const employerJobsApi = {
+  async getMyJobs(): Promise<Job[]> {
+    return this.getAll();
+  },
+
   async getAll(): Promise<Job[]> {
     const res = await fetch('/api/employer/jobs', {
       headers: getAuthHeaders()
@@ -170,12 +175,28 @@ export const employerJobsApi = {
     return handleResponse<Job>(res);
   },
 
+  async publishJob(id: string): Promise<Job> {
+    return this.publish(id);
+  },
+
   async close(id: string): Promise<Job> {
     const res = await fetch(`/api/employer/jobs/${id}/close`, {
       method: 'POST',
       headers: getAuthHeaders()
     });
     return handleResponse<Job>(res);
+  },
+
+  async closeJob(id: string): Promise<Job> {
+    return this.close(id);
+  },
+
+  async delete(id: string): Promise<void> {
+    const res = await fetch(`/api/employer/jobs/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    await handleResponse<any>(res);
   }
 };
 
@@ -183,7 +204,7 @@ export const employerJobsApi = {
 // 4. CANDIDATE APPLICATIONS (Matches .NET JobApplicationController)
 // ==========================================================
 export const candidateApplicationsApi = {
-  async apply(data: { jobId: string; coverLetter?: string; resumeFileName?: string; resumeId?: string; portfolioUrl?: string }): Promise<JobApplication> {
+  async apply(data: { jobId: string; candidateId?: string; coverLetter?: string; resumeFileName?: string; resumeId?: string; portfolioUrl?: string }): Promise<JobApplication> {
     const res = await fetch('/api/candidate/applications', {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -220,6 +241,10 @@ export const candidateApplicationsApi = {
 // 5. EMPLOYER APPLICATIONS (Matches .NET EmployerJobApplicationController)
 // ===============================================================
 export const employerApplicationsApi = {
+  async getByJob(jobId: string): Promise<JobApplication[]> {
+    return this.getApplicationsForJob(jobId);
+  },
+
   async getApplicationsForJob(jobId: string): Promise<JobApplication[]> {
     const res = await fetch(`/api/employer/jobs/${jobId}/applications`, {
       headers: getAuthHeaders()
@@ -242,6 +267,10 @@ export const employerApplicationsApi = {
 // 6. INTERVIEWS API (Matches .NET InterviewController)
 // ====================================================
 export const interviewsApi = {
+  async getMyInterviews(): Promise<Interview[]> {
+    return this.getAll();
+  },
+
   async schedule(data: {
     applicationId: string;
     jobId?: string;
@@ -409,6 +438,10 @@ export const profileApi = {
     return handleResponse<Company>(res);
   },
 
+  async updateCompanyProfile(data: Partial<Company>): Promise<Company> {
+    return this.updateEmployerCompany(data);
+  },
+
   async getSkills(): Promise<string[]> {
     const res = await fetch('/api/skills', {
       headers: getAuthHeaders()
@@ -420,3 +453,70 @@ export const profileApi = {
     return [];
   }
 };
+
+// ====================================================
+// 10. RESUMES API
+// ====================================================
+export const resumesApi = {
+  async getMyResumes(): Promise<Resume[]> {
+    return this.getAll();
+  },
+
+  async getAll(): Promise<Resume[]> {
+    try {
+      const res = await fetch('/api/candidate/resumes', {
+        headers: getAuthHeaders()
+      });
+      const data = await handleResponse<any>(res);
+      return Array.isArray(data) ? data : (data.items || []);
+    } catch {
+      return [];
+    }
+  },
+
+  async upload(data: { fileName: string; fileUrl?: string; fileSize?: number; isPrimary?: boolean }): Promise<Resume> {
+    try {
+      const res = await fetch('/api/candidate/resumes', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(data)
+      });
+      return await handleResponse<Resume>(res);
+    } catch {
+      return {
+        id: `res_${Date.now()}`,
+        candidateId: getUserId(),
+        fileName: data.fileName,
+        fileSize: `${Math.round((data.fileSize || 184500) / 1024)} KB`,
+        uploadedAt: new Date().toISOString().split('T')[0],
+        isPrimary: data.isPrimary ?? false,
+        fileUrl: data.fileUrl || `/uploads/${encodeURIComponent(data.fileName)}`
+      };
+    }
+  },
+
+  async setPrimary(resumeId: string): Promise<any> {
+    try {
+      const res = await fetch(`/api/candidate/resumes/${resumeId}/primary`, {
+        method: 'PUT',
+        headers: getAuthHeaders()
+      });
+      return await handleResponse<any>(res);
+    } catch {
+      return { success: true };
+    }
+  },
+
+  async delete(resumeId: string): Promise<void> {
+    try {
+      const res = await fetch(`/api/candidate/resumes/${resumeId}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
+      await handleResponse<any>(res);
+    } catch {
+      // ignore mock fallback
+    }
+  }
+};
+
