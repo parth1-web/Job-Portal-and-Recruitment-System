@@ -43,9 +43,16 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowMVC", policy =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5246", "https://localhost:7098")
+        policy.WithOrigins("http://localhost:3000", "https://localhost:3000", "http://localhost:5173", "http://localhost:5246", "https://localhost:7098")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+    options.AddPolicy("AllowAllDev", policy =>
+    {
+        policy.SetIsOriginAllowed(_ => true)
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -116,7 +123,7 @@ else
     app.UseHttpsRedirection();
 }
 
-app.UseCors("AllowMVC");
+app.UseCors(app.Environment.IsDevelopment() ? "AllowAllDev" : "AllowFrontend");
 
 app.UseAuthentication();
 
