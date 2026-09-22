@@ -1,0 +1,68 @@
+<%- include('../layout/header') %>
+
+<div class="animate-fade-in" style="max-width: 850px; margin: 0 auto; padding: 2rem 1.5rem;">
+    <div class="page-header" style="margin-bottom: 2rem;">
+        <h1 class="page-title" style="font-size: 1.875rem; font-weight: 700; color: var(--text-primary); margin: 0 0 0.25rem 0;">
+            Company Profile
+        </h1>
+        <p class="page-subtitle" style="color: var(--text-tertiary); margin: 0;">Update your company details, website, size, and mission statement</p>
+    </div>
+
+    <% if (locals.success) { %>
+        <div class="alert alert-success" style="padding: 0.875rem 1rem; border-radius: var(--radius-md); margin-bottom: 1.25rem; font-size: 0.875rem; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: var(--color-success);">
+            <%= locals.success %>
+        </div>
+    <% } %>
+
+    <div class="card" style="background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: var(--radius-xl); padding: 2rem;">
+        <form method="post" action="/employerdashboard/company" style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <div style="display: flex; align-items: center; gap: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-primary);">
+                <div style="width: 72px; height: 72px; border-radius: var(--radius-xl); background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 700; color: var(--color-primary);">
+                    <%= locals.company.name.charAt(0).toUpperCase() %>
+                </div>
+                <div>
+                    <h3 style="margin: 0; font-size: 1.35rem; font-weight: 700; color: var(--text-primary);"><%= locals.company.name %></h3>
+                    <p style="margin: 0.25rem 0 0; color: var(--text-tertiary); font-size: 0.875rem;">Verified Employer Organization</p>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+                <div class="form-group">
+                    <label class="form-label required" style="display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.375rem;">Company Name</label>
+                    <input type="text" name="name" class="form-input" value="<%= locals.company.name %>" required style="width: 100%;" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" style="display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.375rem;">Industry</label>
+                    <input type="text" name="industry" class="form-input" value="<%= locals.company.industry %>" placeholder="e.g. Enterprise Cloud & AI" style="width: 100%;" />
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+                <div class="form-group">
+                    <label class="form-label" style="display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.375rem;">Headquarters Location</label>
+                    <input type="text" name="location" class="form-input" value="<%= locals.company.location %>" placeholder="e.g. San Francisco, CA" style="width: 100%;" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" style="display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.375rem;">Company Size</label>
+                    <input type="text" name="size" class="form-input" value="<%= locals.company.size %>" placeholder="e.g. 250-500 employees" style="width: 100%;" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" style="display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.375rem;">Website URL</label>
+                <input type="url" name="website" class="form-input" value="<%= locals.company.website %>" placeholder="https://example.com" style="width: 100%;" />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" style="display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.375rem;">Company About & Mission</label>
+                <textarea name="description" class="form-textarea" rows="4" style="width: 100%; font-size: 0.875rem;"><%= locals.company.description %></textarea>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem;">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<%- include('../layout/footer') %>

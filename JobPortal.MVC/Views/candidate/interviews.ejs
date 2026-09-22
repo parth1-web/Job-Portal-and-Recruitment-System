@@ -1,0 +1,66 @@
+<%- include('../layout/header') %>
+
+<div class="animate-fade-in" style="max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem;">
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 class="page-title" style="font-size: 1.875rem; font-weight: 700; color: var(--text-primary); margin: 0 0 0.25rem 0;">
+                Scheduled Interviews
+            </h1>
+            <p class="page-subtitle" style="color: var(--text-tertiary); margin: 0;">Prepare for your upcoming conversations with hiring teams</p>
+        </div>
+    </div>
+
+    <% if (locals.interviews && locals.interviews.length > 0) { %>
+        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+            <% locals.interviews.forEach(int => { %>
+                <div class="card" style="background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: var(--radius-xl); padding: 1.75rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <span class="badge badge-primary" style="margin-bottom: 0.5rem; display: inline-block;">Scheduled Video Call</span>
+                            <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--text-primary); margin: 0 0 0.25rem 0;"><%= int.jobTitle %></h2>
+                            <p style="color: var(--text-tertiary); font-size: 0.95rem; margin: 0;">
+                                <%= int.companyName %> &middot; Interviewer: <strong><%= int.interviewerName %></strong> (<%= int.interviewerRole %>)
+                            </p>
+                        </div>
+                        <a href="<%= int.meetingLink %>" target="_blank" rel="noopener" class="btn btn-primary">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 7l-7 5 7 5V7z"></path><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+                            Join Video Call
+                        </a>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border-primary);">
+                        <div>
+                            <span style="font-size: 0.8125rem; color: var(--text-tertiary); display: block;">Date & Time</span>
+                            <span style="font-weight: 600; color: var(--text-primary);">
+                                <%= new Date(int.scheduledAt).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }) %>
+                            </span>
+                        </div>
+                        <div>
+                            <span style="font-size: 0.8125rem; color: var(--text-tertiary); display: block;">Duration</span>
+                            <span style="font-weight: 600; color: var(--text-primary);"><%= int.durationMinutes %> minutes</span>
+                        </div>
+                        <div>
+                            <span style="font-size: 0.8125rem; color: var(--text-tertiary); display: block;">Location</span>
+                            <span style="font-weight: 600; color: var(--text-primary);"><%= int.location %></span>
+                        </div>
+                        <div>
+                            <span style="font-size: 0.8125rem; color: var(--text-tertiary); display: block;">Topic</span>
+                            <span style="font-weight: 600; color: var(--text-primary);"><%= int.notes %></span>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+    <% } else { %>
+        <div class="empty-state" style="text-align: center; padding: 4rem 2rem; background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: var(--radius-xl);">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--text-tertiary); margin-bottom: 1rem;">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line>
+            </svg>
+            <h3 style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">No upcoming interviews</h3>
+            <p style="color: var(--text-tertiary); margin-bottom: 1.5rem;">When employers schedule an interview with you, it will appear here with meeting links.</p>
+            <a href="/jobs" class="btn btn-primary">Browse Jobs</a>
+        </div>
+    <% } %>
+</div>
+
+<%- include('../layout/footer') %>

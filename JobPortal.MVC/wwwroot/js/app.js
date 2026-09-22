@@ -559,6 +559,33 @@
     });
   }
 
+  function initHeaderScroll() {
+    const headers = document.querySelectorAll('.header, .public-nav');
+    if (!headers.length) return;
+
+    let ticking = false;
+    const updateHeaderState = () => {
+      const isScrolled = window.scrollY > 8;
+      headers.forEach(header => {
+        if (isScrolled) {
+          header.classList.add('is-scrolled', 'scrolled');
+        } else {
+          header.classList.remove('is-scrolled', 'scrolled');
+        }
+      });
+      ticking = false;
+    };
+
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        window.requestAnimationFrame(updateHeaderState);
+        ticking = true;
+      }
+    }, { passive: true });
+
+    updateHeaderState();
+  }
+
   function init() {
     initDropdowns();
     initModals();
@@ -573,6 +600,7 @@
     initKeyboardNavigation();
     initAnimations();
     initHeaderNotifications();
+    initHeaderScroll();
   }
 
   if (document.readyState === 'loading') {

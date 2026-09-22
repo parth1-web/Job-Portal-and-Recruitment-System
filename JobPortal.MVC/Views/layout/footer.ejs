@@ -1,0 +1,147 @@
+            </div>
+        </main>
+        
+        <footer class="footer" role="contentinfo">
+            <div class="footer-inner">
+                <div class="footer-grid">
+                    <div class="footer-brand">
+                        <a href="/" class="footer-brand-header">
+                            <div class="sidebar-logo" style="width: 36px; height: 36px; background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: white;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                </svg>
+                            </div>
+                            <span class="footer-brand-title">JobPortal</span>
+                        </a>
+                        <p class="footer-brand-desc">
+                            The modern recruitment and talent platform connecting exceptional candidates with high-growth companies worldwide.
+                        </p>
+                        <div style="margin-top: 0.25rem;">
+                            <span class="footer-badge-pill">
+                                <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--color-success); display: inline-block;"></span>
+                                Systems Operational
+                            </span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="footer-heading">For Job Seekers</h4>
+                        <ul class="footer-links">
+                            <li><a href="/jobs" class="footer-link">Browse All Jobs</a></li>
+                            <li><a href="/auth/login" class="footer-link">Candidate Portal</a></li>
+                            <li><a href="/auth/register?role=Candidate" class="footer-link">Create Account</a></li>
+                            <li><a href="/jobs?workMode=Remote" class="footer-link">Remote Roles</a></li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 class="footer-heading">For Employers</h4>
+                        <ul class="footer-links">
+                            <li><a href="/auth/login?role=Employer" class="footer-link">Employer Login</a></li>
+                            <li><a href="/auth/register?role=Employer" class="footer-link">Post an Opening</a></li>
+                            <li><a href="/employerdashboard" class="footer-link">Talent Pipeline</a></li>
+                            <li><a href="/employerdashboard/applications" class="footer-link">Review Applicants</a></li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 class="footer-heading">Platform</h4>
+                        <ul class="footer-links">
+                            <li><a href="/jobs" class="footer-link">Explore Categories</a></li>
+                            <li><a href="/account/profile" class="footer-link">User Settings</a></li>
+                            <li><a href="#header" class="footer-link">Back to Top &uarr;</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="footer-bottom">
+                    <p style="margin: 0;">&copy; 2026 JobPortal &amp; Recruitment System. All rights reserved.</p>
+                    <div style="display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap;">
+                        <span>Crafted for high performance &amp; accessible recruiting</span>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    <div id="toastContainer" class="toast-container" style="position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: var(--z-toast); display: flex; flex-direction: column; gap: 0.5rem;"></div>
+
+    <script src="/js/theme.js"></script>
+    <script src="/js/job-themes.js"></script>
+    <script src="/js/sidebar.js"></script>
+    <script src="/js/app.js"></script>
+
+    <script>
+        // Global interactive helpers
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = 'toast show';
+            toast.style.padding = '0.75rem 1.25rem';
+            toast.style.borderRadius = 'var(--radius-md)';
+            toast.style.background = type === 'success' ? '#10b981' : (type === 'error' ? '#ef4444' : '#6366f1');
+            toast.style.color = '#ffffff';
+            toast.style.fontWeight = '500';
+            toast.style.boxShadow = 'var(--shadow-lg)';
+            toast.style.fontSize = '0.875rem';
+            toast.style.display = 'flex';
+            toast.style.alignItems = 'center';
+            toast.style.gap = '0.5rem';
+            toast.innerHTML = message;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        async function saveJob(jobId) {
+            try {
+                const response = await fetch('/api/jobs/' + jobId + '/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    const btn = document.querySelector(`.save-job-btn[data-job-id="${jobId}"]`);
+                    if (btn) {
+                        if (data.isSaved) {
+                            btn.classList.add('saved');
+                        } else {
+                            btn.classList.remove('saved');
+                        }
+                    }
+                    showToast(data.message || (data.isSaved ? 'Job saved to your bookmarks!' : 'Job removed from bookmarks.'));
+                    const badge = document.getElementById('savedJobsBadge');
+                    if (badge && data.savedCount !== undefined) {
+                        badge.textContent = data.savedCount;
+                    }
+                } else if (response.status === 401) {
+                    window.location.href = '/auth/login?returnUrl=' + encodeURIComponent(window.location.pathname);
+                } else {
+                    showToast(data.error || 'Failed to update saved job status.', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('An error occurred. Please try again.', 'error');
+            }
+        }
+
+        document.getElementById('markAllReadBtn')?.addEventListener('click', async () => {
+            try {
+                await fetch('/api/notifications/mark-read', { method: 'POST' });
+                const badge = document.getElementById('notificationBadge');
+                if (badge) badge.style.display = 'none';
+                showToast('All notifications marked as read.');
+            } catch (e) {
+                console.error(e);
+            }
+        });
+    </script>
+</body>
+</html>

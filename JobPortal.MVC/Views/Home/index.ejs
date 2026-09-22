@@ -1,0 +1,194 @@
+<%- include('../layout/header') %>
+
+<section class="hero-section animate-fade-in" style="padding: 4.5rem 1rem; background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%); position: relative; overflow: hidden;">
+    <div class="container" style="max-width: 1000px; margin: 0 auto; text-align: center; position: relative; z-index: 1;">
+        <h1 class="hero-title" style="font-size: clamp(2.5rem, 5vw, 3.75rem); font-weight: 800; line-height: 1.15; color: var(--text-primary); margin-bottom: 1.25rem;">
+            Find Your Dream Job
+        </h1>
+        <p class="hero-subtitle" style="font-size: 1.25rem; color: var(--text-secondary); margin-bottom: 2.25rem; max-width: 650px; margin-left: auto; margin-right: auto;">
+            Connect with top technology companies and discover opportunities that match your skills and career aspirations.
+        </p>
+        
+        <div class="hero-search" style="margin-bottom: 3rem;">
+            <form method="get" action="/jobs" class="search-form" style="display: flex; gap: 1rem; max-width: 780px; margin: 0 auto; flex-wrap: wrap; justify-content: center;">
+                <div class="search-input-group" style="position: relative; flex: 1; min-width: 260px;">
+                    <svg class="search-icon" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" name="searchTerm" placeholder="Job title, skills, or company" class="form-input" style="padding-left: 2.75rem; height: 50px; font-size: 1rem; border-radius: var(--radius-lg); background: var(--bg-card); width: 100%; border: 1px solid var(--border-primary);" />
+                </div>
+                <div class="search-input-group" style="position: relative; flex: 1; min-width: 220px;">
+                    <svg class="search-icon" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                    <input type="text" name="location" placeholder="City, state, or remote" class="form-input" style="padding-left: 2.75rem; height: 50px; font-size: 1rem; border-radius: var(--radius-lg); background: var(--bg-card); width: 100%; border: 1px solid var(--border-primary);" />
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg" style="height: 50px; padding: 0 1.75rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem; border-radius: var(--radius-lg);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    Search Jobs
+                </button>
+            </form>
+        </div>
+
+        <div class="hero-stats" style="display: flex; justify-content: center; gap: 3.5rem; flex-wrap: wrap; padding-top: 2rem; border-top: 1px solid var(--border-primary);">
+            <div class="stat-item" style="text-align: center;">
+                <span style="display: block; font-size: 2.25rem; font-weight: 800; color: var(--color-primary); line-height: 1.1;">10,000+</span>
+                <span style="font-size: 0.875rem; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em;">Active Jobs</span>
+            </div>
+            <div class="stat-item" style="text-align: center;">
+                <span style="display: block; font-size: 2.25rem; font-weight: 800; color: var(--color-primary); line-height: 1.1;">5,000+</span>
+                <span style="font-size: 0.875rem; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em;">Companies</span>
+            </div>
+            <div class="stat-item" style="text-align: center;">
+                <span style="display: block; font-size: 2.25rem; font-weight: 800; color: var(--color-primary); line-height: 1.1;">50,000+</span>
+                <span style="font-size: 0.875rem; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em;">Candidates</span>
+            </div>
+            <div class="stat-item" style="text-align: center;">
+                <span style="display: block; font-size: 2.25rem; font-weight: 800; color: var(--color-primary); line-height: 1.1;">95%</span>
+                <span style="font-size: 0.875rem; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em;">Match Rate</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="features-section" style="padding: 4.5rem 1rem; background: var(--bg-primary);">
+    <div class="container" style="max-width: 1200px; margin: 0 auto;">
+        <div class="section-header" style="text-align: center; margin-bottom: 3rem;">
+            <h2 style="font-size: 2rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">Why Choose JobPortal?</h2>
+            <p style="font-size: 1.125rem; color: var(--text-tertiary); max-width: 600px; margin: 0 auto;">We make job hunting and recruitment simple, efficient, and transparent.</p>
+        </div>
+        <div class="features-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem;">
+            <div class="feature-card" style="padding: 2rem; background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: var(--radius-xl);">
+                <div class="feature-icon primary" style="width: 52px; height: 52px; border-radius: var(--radius-lg); background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light)); display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; color: white;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                </div>
+                <h3 style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Smart Matching</h3>
+                <p style="color: var(--text-secondary); line-height: 1.6; font-size: 0.9375rem;">Intelligent skill-based matching connects you with positions that fit your expertise and career path.</p>
+            </div>
+            <div class="feature-card" style="padding: 2rem; background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: var(--radius-xl);">
+                <div class="feature-icon success" style="width: 52px; height: 52px; border-radius: var(--radius-lg); background: linear-gradient(135deg, var(--color-success), #34d399); display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; color: white;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </div>
+                <h3 style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Verified Companies</h3>
+                <p style="color: var(--text-secondary); line-height: 1.6; font-size: 0.9375rem;">Every employer is verified to guarantee authentic job openings and transparent compensation.</p>
+            </div>
+            <div class="feature-card" style="padding: 2rem; background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: var(--radius-xl);">
+                <div class="feature-icon warning" style="width: 52px; height: 52px; border-radius: var(--radius-lg); background: linear-gradient(135deg, var(--color-warning), #fbbf24); display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; color: white;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                </div>
+                <h3 style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">1-Click Applications</h3>
+                <p style="color: var(--text-secondary); line-height: 1.6; font-size: 0.9375rem;">Apply directly with your candidate profile and track your application status in real-time.</p>
+            </div>
+            <div class="feature-card" style="padding: 2rem; background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: var(--radius-xl);">
+                <div class="feature-icon info" style="width: 52px; height: 52px; border-radius: var(--radius-lg); background: linear-gradient(135deg, var(--color-info), #22d3ee); display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; color: white;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line></svg>
+                </div>
+                <h3 style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Interview Management</h3>
+                <p style="color: var(--text-secondary); line-height: 1.6; font-size: 0.9375rem;">Direct scheduling and calendar integrations for smooth candidate and interviewer coordination.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="jobs-preview-section" style="padding: 4.5rem 1rem; background: var(--bg-secondary);">
+    <div class="container" style="max-width: 1200px; margin: 0 auto;">
+        <div class="section-header d-flex justify-between items-center" style="margin-bottom: 2.5rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h2 style="font-size: 2rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.35rem;">Latest Job Opportunities</h2>
+                <p style="font-size: 1.05rem; color: var(--text-tertiary); margin: 0;">Discover new openings from leading engineering and product teams</p>
+            </div>
+            <a href="/jobs" class="btn btn-outline-secondary">View All Jobs</a>
+        </div>
+        
+        <div class="jobs-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem;">
+            <% if (locals.jobs && locals.jobs.length > 0) { %>
+                <% locals.jobs.forEach(job => { %>
+                    <% const theme = locals.getCategoryTheme ? locals.getCategoryTheme(job.category) : { key: 'other', label: job.category || 'General', iconSvg: '' }; %>
+                    <article class="job-card job-theme-<%= theme.key %>" data-job-id="<%= job.id %>" data-job-theme="<%= theme.key %>">
+                        <div class="job-card-header">
+                            <div class="job-company">
+                                <div class="company-logo placeholder" style="font-weight: 700; font-size: 1.125rem;">
+                                    <%= job.companyName.charAt(0).toUpperCase() %>
+                                </div>
+                                <div class="company-info">
+                                    <h3 class="job-title"><a href="/jobs/<%= job.id %>" style="color: inherit; text-decoration: none;"><%= job.title %></a></h3>
+                                    <div style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.25rem;">
+                                        <p class="company-name" style="margin: 0;"><%= job.companyName %></p>
+                                        <span class="job-category-badge" title="<%= theme.label %>" style="font-size: 0.7rem; padding: 0.15rem 0.5rem;">
+                                            <span class="job-category-dot"></span>
+                                            <%- theme.iconSvg %>
+                                            <span><%= theme.label %></span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn btn-icon btn-ghost save-job-btn <%= job.isSaved ? 'saved' : '' %>" 
+                                    data-job-id="<%= job.id %>" 
+                                    aria-label="<%= job.isSaved ? 'Remove from saved jobs' : 'Save job' %>"
+                                    onclick="saveJob('<%= job.id %>')">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="<%= job.isSaved ? 'currentColor' : 'none' %>" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                            </button>
+                        </div>
+                        
+                        <div class="job-card-body">
+                            <div class="job-meta">
+                                <span class="meta-item">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                                    <%= job.location %>
+                                </span>
+                                <span class="meta-item">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line></svg>
+                                    <%= job.workMode %>
+                                </span>
+                                <span class="meta-item">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                                    <%= job.employmentType %>
+                                </span>
+                            </div>
+                            
+                            <% if (job.minSalary && job.maxSalary) { %>
+                                <div class="job-salary">
+                                    $<%= Number(job.minSalary).toLocaleString() %> - $<%= Number(job.maxSalary).toLocaleString() %> / yr
+                                </div>
+                            <% } %>
+                            
+                            <% if (job.skills && job.skills.length > 0) { %>
+                                <div class="job-skills">
+                                    <% job.skills.slice(0, 4).forEach(skill => { %>
+                                        <span class="badge badge-soft"><%= skill %></span>
+                                    <% }) %>
+                                    <% if (job.skills.length > 4) { %>
+                                        <span class="badge badge-soft">+<%= job.skills.length - 4 %> more</span>
+                                    <% } %>
+                                </div>
+                            <% } %>
+                        </div>
+                        
+                        <div class="job-card-footer">
+                            <span class="job-posted">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                                <%= new Date(job.postedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                            </span>
+                            <a href="/jobs/<%= job.id %>" class="btn btn-sm btn-outline-secondary">View Details</a>
+                        </div>
+                    </article>
+                <% }) %>
+            <% } %>
+        </div>
+    </div>
+</section>
+
+<section class="cta-section" style="padding: 4.5rem 1rem; background: var(--bg-primary);">
+    <div class="container" style="max-width: 1000px; margin: 0 auto;">
+        <div class="cta-card" style="background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)); border-radius: var(--radius-2xl); padding: 3.5rem 2rem; text-align: center; color: white;">
+            <h2 style="font-size: 2.25rem; font-weight: 700; margin-bottom: 0.75rem; color: white;">Ready to Accelerate Your Career?</h2>
+            <p style="font-size: 1.15rem; opacity: 0.95; max-width: 550px; margin: 0 auto 2rem; color: white;">Join thousands of engineers and hiring teams leveraging JobPortal today.</p>
+            <div class="cta-actions" style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <a href="/auth/register" class="btn btn-primary btn-lg" style="background: white; color: var(--color-primary); border-color: white; font-weight: 600;">Create Free Candidate Account</a>
+                <a href="/auth/register?role=Employer" class="btn btn-outline-secondary btn-lg" style="border-color: rgba(255,255,255,0.8); color: white; font-weight: 600;">Post a Job for Free</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<%- include('../layout/footer') %>

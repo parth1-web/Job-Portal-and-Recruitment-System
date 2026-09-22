@@ -1,0 +1,83 @@
+<%- include('../layout/header') %>
+
+<div class="animate-fade-in" style="max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem;">
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 class="page-title" style="font-size: 1.875rem; font-weight: 700; color: var(--text-primary); margin: 0 0 0.25rem 0;">
+                My Posted Jobs
+            </h1>
+            <p class="page-subtitle" style="color: var(--text-tertiary); margin: 0;">Manage your open postings, track candidates, and adjust listing status</p>
+        </div>
+        <a href="/employerjobs/create" class="btn btn-primary">+ Post a New Job</a>
+    </div>
+
+    <% if (locals.employerJobs && locals.employerJobs.length > 0) { %>
+        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+            <% locals.employerJobs.forEach(job => { %>
+                <% const theme = locals.getCategoryTheme ? locals.getCategoryTheme(job.category) : { key: 'other', label: job.category || 'General', iconSvg: '' }; %>
+                <div class="card job-card job-theme-<%= theme.key %>" data-job-theme="<%= theme.key %>" style="background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: var(--radius-xl); padding: 1.75rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem; flex-wrap: wrap;">
+                                <h2 style="font-size: 1.3rem; font-weight: 700; color: var(--text-primary); margin: 0;">
+                                    <a href="/jobs/<%= job.id %>" style="color: inherit; text-decoration: none;"><%= job.title %></a>
+                                </h2>
+                                <span class="job-category-badge" style="font-size: 0.75rem;">
+                                    <span class="job-category-dot"></span>
+                                    <%- theme.iconSvg %>
+                                    <span><%= theme.label %></span>
+                                </span>
+                                <span class="badge <%= job.status === 'Active' ? 'badge-success' : 'badge-soft' %>"><%= job.status %></span>
+                            </div>
+                            <p style="color: var(--text-tertiary); font-size: 0.9rem; margin: 0;">
+                                <%= job.location %> &middot; <%= job.workMode %> &middot; <%= job.employmentType %> &middot; Posted <%= new Date(job.postedDate).toLocaleDateString() %>
+                            </p>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <a href="/employerdashboard/applications?jobId=<%= job.id %>" class="btn btn-outline-primary btn-sm">
+                                Review Applicants (<%= job.applicationsCount %>)
+                            </a>
+                            <a href="/jobs/<%= job.id %>" class="btn btn-outline-secondary btn-sm">Preview</a>
+                            <button class="btn btn-ghost btn-sm text-danger" onclick="toggleJobStatus('<%= job.id %>')">
+                                <%= job.status === 'Active' ? 'Deactivate' : 'Activate' %>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 2rem; margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border-primary); font-size: 0.875rem; color: var(--text-secondary); flex-wrap: wrap;">
+                        <div><strong>Salary:</strong> $<%= Number(job.minSalary).toLocaleString() %> - $<%= Number(job.maxSalary).toLocaleString() %> / yr</div>
+                        <div><strong>Views:</strong> <%= job.viewsCount %></div>
+                        <div><strong>Applicants:</strong> <%= job.applicationsCount %></div>
+                        <div><strong>Expires:</strong> <%= new Date(job.expiryDate).toLocaleDateString() %></div>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+    <% } else { %>
+        <div class="empty-state" style="text-align: center; padding: 4rem 2rem; background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: var(--radius-xl);">
+            <h3 style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">No jobs posted yet</h3>
+            <p style="color: var(--text-tertiary); margin-bottom: 1.5rem;">Post your first job opening to start receiving qualified applicants.</p>
+            <a href="/employerjobs/create" class="btn btn-primary">Post Your First Job</a>
+        </div>
+    <% } %>
+</div>
+
+<script>
+    async function toggleJobStatus(jobId) {
+        try {
+            const res = await fetch('/api/employer/jobs/' + jobId + '/toggle-status', { method: 'POST' });
+            const data = await res.json();
+            if (res.ok) {
+                showToast(data.message || 'Job status updated.');
+                setTimeout(() => window.location.reload(), 300);
+            } else {
+                showToast(data.error || 'Failed to update job status.', 'error');
+            }
+        } catch (e) {
+            console.error(e);
+            showToast('Error updating status.', 'error');
+        }
+    }
+</script>
+
+<%- include('../layout/footer') %>

@@ -1,0 +1,216 @@
+<%- include('../layout/header') %>
+
+<% const theme = locals.getCategoryTheme ? locals.getCategoryTheme(locals.job.category) : { key: 'other', label: locals.job.category || 'General', iconSvg: '' }; %>
+
+<div class="animate-fade-in job-theme-<%= theme.key %>" data-job-theme="<%= theme.key %>" style="max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem;">
+    <nav class="breadcrumb" aria-label="Breadcrumb" style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: var(--text-tertiary); margin-bottom: 1.5rem; flex-wrap: wrap;">
+        <span><a href="/" style="color: var(--text-secondary); text-decoration: none;">Home</a></span>
+        <span>/</span>
+        <span><a href="/jobs" style="color: var(--text-secondary); text-decoration: none;">Jobs</a></span>
+        <span>/</span>
+        <span><a href="/jobs?category=<%= theme.key %>" style="color: var(--text-secondary); text-decoration: none;"><%= theme.label %></a></span>
+        <span>/</span>
+        <span style="color: var(--text-primary); font-weight: 500;"><%= locals.job.title %></span>
+    </nav>
+
+    <div class="job-detail-layout" style="display: grid; grid-template-columns: 1fr 340px; gap: 2rem; align-items: start;">
+        <div class="job-detail-main">
+            <div class="card job-card" style="background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: var(--radius-xl); padding: 2rem; margin-bottom: 1.5rem;">
+                <div style="display: flex; gap: 1.25rem; align-items: flex-start; justify-content: space-between; flex-wrap: wrap;">
+                    <div style="display: flex; gap: 1.25rem; align-items: center;">
+                        <div class="avatar avatar-xl company-logo placeholder" style="width: 64px; height: 64px; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 1.75rem; font-weight: 700;">
+                            <%= locals.job.companyName.charAt(0).toUpperCase() %>
+                        </div>
+                        <div>
+                            <div style="margin-bottom: 0.35rem;">
+                                <span class="job-category-badge" title="Category: <%= theme.label %>" style="font-size: 0.8125rem; padding: 0.3rem 0.75rem;">
+                                    <span class="job-category-dot"></span>
+                                    <%- theme.iconSvg %>
+                                    <span><%= theme.label %></span>
+                                </span>
+                            </div>
+                            <h1 style="font-size: 1.75rem; font-weight: 700; color: var(--text-primary); margin: 0 0 0.35rem 0;"><%= locals.job.title %></h1>
+                            <p style="color: var(--text-tertiary); margin: 0 0 0.5rem 0; font-size: 1rem;"><%= locals.job.companyName %> &middot; <%= locals.job.location %></p>
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                <span class="badge badge-primary"><%= locals.job.workMode %></span>
+                                <span class="badge badge-secondary"><%= locals.job.employmentType %></span>
+                                <span class="badge badge-soft"><%= locals.job.status %></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-icon btn-ghost save-job-btn <%= locals.job.isSaved ? 'saved' : '' %>"
+                            data-job-id="<%= locals.job.id %>"
+                            aria-label="Save job"
+                            onclick="saveJob('<%= locals.job.id %>')" style="padding: 0.5rem;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="<%= locals.job.isSaved ? 'currentColor' : 'none' %>" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                    </button>
+                </div>
+
+                <% if (locals.job.minSalary && locals.job.maxSalary) { %>
+                    <p style="font-size: 1.35rem; font-weight: 700; color: var(--color-success); margin: 1.25rem 0 0.25rem;">
+                        $<%= Number(locals.job.minSalary).toLocaleString() %> - $<%= Number(locals.job.maxSalary).toLocaleString() %> <span style="font-size: 0.95rem; font-weight: normal; color: var(--text-tertiary);">per year</span>
+                    </p>
+                <% } %>
+                
+                <p style="font-size: 0.875rem; color: var(--text-tertiary); margin-top: 0.5rem;">
+                    Posted <%= new Date(locals.job.postedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %> &middot; <%= locals.job.applicationsCount %> applicants &middot; <%= locals.job.viewsCount %> views
+                </p>
+
+                <% if (locals.job.skills && locals.job.skills.length > 0) { %>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border-primary);">
+                        <% locals.job.skills.forEach(skill => { %>
+                            <span class="badge badge-soft" style="font-size: 0.8125rem; padding: 0.35rem 0.75rem;"><%= skill %></span>
+                        <% }) %>
+                    </div>
+                <% } %>
+            </div>
+
+            <div class="card" style="background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: var(--radius-xl); padding: 2rem; margin-bottom: 1.5rem;">
+                <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem;">Job Description</h3>
+                <div style="white-space: pre-line; color: var(--text-secondary); line-height: 1.7; font-size: 0.95rem;"><%= locals.job.description %></div>
+            </div>
+
+            <% if (locals.job.requirements) { %>
+                <div class="card" style="background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: var(--radius-xl); padding: 2rem; margin-bottom: 1.5rem;">
+                    <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem;">Requirements</h3>
+                    <div style="white-space: pre-line; color: var(--text-secondary); line-height: 1.7; font-size: 0.95rem;"><%= locals.job.requirements %></div>
+                </div>
+            <% } %>
+
+            <% if (locals.job.responsibilities && locals.job.responsibilities.length > 0) { %>
+                <div class="card" style="background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: var(--radius-xl); padding: 2rem; margin-bottom: 1.5rem;">
+                    <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem;">Key Responsibilities</h3>
+                    <ul style="padding-left: 1.25rem; color: var(--text-secondary); line-height: 1.7; font-size: 0.95rem;">
+                        <% locals.job.responsibilities.forEach(r => { %>
+                            <li style="margin-bottom: 0.5rem;"><%= r %></li>
+                        <% }) %>
+                    </ul>
+                </div>
+            <% } %>
+
+            <% if (locals.job.benefits) { %>
+                <div class="card" style="background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: var(--radius-xl); padding: 2rem; margin-bottom: 1.5rem;">
+                    <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem;">Benefits & Perks</h3>
+                    <div style="white-space: pre-line; color: var(--text-secondary); line-height: 1.7; font-size: 0.95rem;"><%= locals.job.benefits %></div>
+                </div>
+            <% } %>
+
+            <% if (locals.company) { %>
+                <div class="card" style="background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: var(--radius-xl); padding: 2rem; margin-bottom: 1.5rem;">
+                    <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.75rem;">About <%= locals.company.name %></h3>
+                    <p style="color: var(--text-secondary); line-height: 1.7; font-size: 0.95rem; margin-bottom: 0.75rem;"><%= locals.company.description %></p>
+                    <% if (locals.company.website) { %>
+                        <p style="margin: 0;"><a href="<%= locals.company.website %>" target="_blank" rel="noopener" style="color: var(--color-primary); text-decoration: none; font-weight: 500;"><%= locals.company.website %> &rarr;</a></p>
+                    <% } %>
+                </div>
+            <% } %>
+        </div>
+
+        <aside class="job-detail-side" style="position: sticky; top: calc(var(--header-height) + 1.5rem); display: flex; flex-direction: column; gap: 1.5rem;">
+            <div class="card" style="background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: var(--radius-xl); padding: 1.75rem;">
+                <h3 style="font-size: 1.125rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem;">Apply for this job</h3>
+                
+                <% if (locals.application) { %>
+                    <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: var(--radius-lg); padding: 1rem; margin-bottom: 1rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <span class="badge badge-success">Applied</span>
+                            <span style="font-size: 0.875rem; font-weight: 600; color: var(--color-success);"><%= locals.application.status %></span>
+                        </div>
+                        <p style="font-size: 0.8125rem; color: var(--text-tertiary); margin: 0;">
+                            Submitted on <%= new Date(locals.application.appliedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                        </p>
+                    </div>
+                    <a href="/candidatedashboard/applications" class="btn btn-outline-secondary w-full" style="font-size: 0.875rem;">View Application Progress</a>
+                <% } else if (locals.user && locals.user.role === 'Candidate') { %>
+                    <form id="applyJobForm" style="display: flex; flex-direction: column; gap: 1rem;">
+                        <div>
+                            <label for="coverLetter" style="display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.375rem;">Cover Note (Optional)</label>
+                            <textarea id="coverLetter" name="coverLetter" class="form-textarea" rows="4" placeholder="Briefly introduce yourself and why you're a great fit..." style="width: 100%; font-size: 0.875rem;"></textarea>
+                        </div>
+                        <button type="submit" id="submitApplyBtn" class="btn btn-primary w-full" style="font-weight: 600;">
+                            Submit Application
+                        </button>
+                    </form>
+                <% } else if (locals.user && locals.user.role === 'Employer') { %>
+                    <div style="padding: 1rem; background: var(--bg-tertiary); border-radius: var(--radius-lg); font-size: 0.875rem; color: var(--text-secondary);">
+                        You are logged in as an <strong>Employer</strong>. Use the Employer Dashboard to manage postings and applicants.
+                    </div>
+                    <a href="/employerdashboard" class="btn btn-outline-secondary w-full" style="margin-top: 0.75rem;">Employer Dashboard</a>
+                <% } else { %>
+                    <p style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.5; margin-bottom: 1.25rem;">
+                        Sign in as a candidate to apply directly with your profile and resume.
+                    </p>
+                    <a href="/auth/login?returnUrl=/jobs/<%= locals.job.id %>" class="btn btn-primary w-full" style="font-weight: 600;">Sign In to Apply</a>
+                    <a href="/auth/register?returnUrl=/jobs/<%= locals.job.id %>" class="btn btn-ghost w-full" style="margin-top: 0.5rem; font-size: 0.875rem;">Create Account</a>
+                <% } %>
+            </div>
+
+            <div class="card" style="background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: var(--radius-xl); padding: 1.75rem;">
+                <h3 style="font-size: 1.125rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem;">Job Overview</h3>
+                <dl style="display: flex; flex-direction: column; gap: 0.875rem; margin: 0; font-size: 0.875rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-primary); padding-bottom: 0.5rem;">
+                        <dt style="color: var(--text-tertiary);">Category</dt>
+                        <dd style="margin: 0;">
+                            <span class="job-category-badge" style="font-size: 0.75rem;">
+                                <span class="job-category-dot"></span>
+                                <%- theme.iconSvg %>
+                                <span><%= theme.label %></span>
+                            </span>
+                        </dd>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-primary); padding-bottom: 0.5rem;">
+                        <dt style="color: var(--text-tertiary);">Location</dt>
+                        <dd style="margin: 0; font-weight: 600; color: var(--text-primary);"><%= locals.job.location %></dd>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-primary); padding-bottom: 0.5rem;">
+                        <dt style="color: var(--text-tertiary);">Work Mode</dt>
+                        <dd style="margin: 0; font-weight: 600; color: var(--text-primary);"><%= locals.job.workMode %></dd>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-primary); padding-bottom: 0.5rem;">
+                        <dt style="color: var(--text-tertiary);">Job Type</dt>
+                        <dd style="margin: 0; font-weight: 600; color: var(--text-primary);"><%= locals.job.employmentType %></dd>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <dt style="color: var(--text-tertiary);">Deadline</dt>
+                        <dd style="margin: 0; font-weight: 600; color: var(--text-primary);"><%= new Date(locals.job.expiryDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></dd>
+                    </div>
+                </dl>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<script>
+    document.getElementById('applyJobForm')?.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('submitApplyBtn');
+        btn.disabled = true;
+        btn.textContent = 'Submitting...';
+        
+        try {
+            const coverLetter = document.getElementById('coverLetter')?.value || '';
+            const res = await fetch('/api/jobs/<%= locals.job.id %>/apply', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ coverLetter })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                showToast('Application submitted successfully!');
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                showToast(data.error || 'Failed to submit application.', 'error');
+                btn.disabled = false;
+                btn.textContent = 'Submit Application';
+            }
+        } catch (err) {
+            console.error(err);
+            showToast('Network error while submitting.', 'error');
+            btn.disabled = false;
+            btn.textContent = 'Submit Application';
+        }
+    });
+</script>
+
+<%- include('../layout/footer') %>

@@ -1,0 +1,182 @@
+<%- include('../layout/header') %>
+
+<div class="animate-fade-in" style="max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem;">
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 class="page-title" style="font-size: 1.875rem; font-weight: 700; color: var(--text-primary); margin: 0 0 0.25rem 0;">
+                Candidate Applications
+            </h1>
+            <p class="page-subtitle" style="color: var(--text-tertiary); margin: 0;">Review applicant profiles, change review statuses, and advance candidates</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/employerjobs/create" class="btn btn-primary">+ Post New Role</a>
+        </div>
+    </div>
+
+    <% if (locals.applications && locals.applications.length > 0) { %>
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <% locals.applications.forEach(app => { %>
+                <div class="card" style="background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: var(--radius-xl); padding: 1.75rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <div style="width: 50px; height: 50px; border-radius: var(--radius-lg); background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.25rem;">
+                                <%= app.candidateName.charAt(0).toUpperCase() %>
+                            </div>
+                            <div>
+                                <h3 style="margin: 0; font-size: 1.2rem; font-weight: 700; color: var(--text-primary);"><%= app.candidateName %></h3>
+                                <p style="margin: 0.2rem 0 0; color: var(--text-tertiary); font-size: 0.875rem;">
+                                    <%= app.candidateTitle || 'Software Engineer' %> &middot; <a href="mailto:<%= app.candidateEmail %>" style="color: var(--color-primary); text-decoration: none;"><%= app.candidateEmail %></a>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <span style="font-size: 0.8125rem; color: var(--text-tertiary);">Status:</span>
+                            <select class="form-select" onchange="updateAppStatus('<%= app.id %>', this.value)" style="font-size: 0.875rem; font-weight: 600; padding: 0.35rem 0.75rem;">
+                                <option value="Submitted" <%= app.status === 'Submitted' ? 'selected' : '' %>>Submitted</option>
+                                <option value="Under Review" <%= app.status === 'Under Review' ? 'selected' : '' %>>Under Review</option>
+                                <option value="Interview Scheduled" <%= app.status === 'Interview Scheduled' ? 'selected' : '' %>>Interview Scheduled</option>
+                                <option value="Accepted" <%= app.status === 'Accepted' ? 'selected' : '' %>>Accepted</option>
+                                <option value="Rejected" <%= app.status === 'Rejected' ? 'selected' : '' %>>Rejected</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="margin: 1rem 0; padding: 1rem; background: var(--bg-tertiary); border-radius: var(--radius-lg);">
+                        <div style="font-size: 0.8125rem; font-weight: 600; color: var(--text-tertiary); margin-bottom: 0.25rem; text-transform: uppercase;">Applied For Role:</div>
+                        <div style="font-weight: 600; color: var(--text-primary);"><%= app.jobTitle %> &middot; <span style="font-weight: normal; color: var(--text-tertiary); font-size: 0.8125rem;">Received <%= new Date(app.appliedDate).toLocaleDateString() %></span></div>
+                        
+                        <% if (app.coverLetter) { %>
+                            <div style="margin-top: 0.75rem; font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6;">
+                                <strong style="color: var(--text-primary);">Applicant Cover Note:</strong><br/>
+                                <%= app.coverLetter %>
+                            </div>
+                        <% } %>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-primary); padding-top: 0.75rem; font-size: 0.8125rem; color: var(--text-tertiary);">
+                        <div>History: <%= app.history.map(h => h.status).join(' → ') %></div>
+                        <div>
+                            <button class="btn btn-sm btn-outline-primary" onclick="scheduleInterviewPrompt('<%= app.id %>', '<%= app.candidateName %>', '<%= app.jobTitle %>')">
+                                Schedule Interview
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+    <% } else { %>
+        <div class="empty-state" style="text-align: center; padding: 4rem 2rem; background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: var(--radius-xl);">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--text-tertiary); margin-bottom: 1rem;">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle>
+            </svg>
+            <h3 style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">No applications received yet</h3>
+            <p style="color: var(--text-tertiary); margin-bottom: 1.5rem;">Candidates who apply for your posted jobs will be displayed here.</p>
+            <a href="/employerjobs/create" class="btn btn-primary">Post a Job</a>
+        </div>
+    <% } %>
+</div>
+
+<!-- Schedule Interview Modal -->
+<div id="scheduleModal" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: var(--z-modal); align-items: center; justify-content: center; padding: 1rem;">
+    <div class="card" style="background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: var(--radius-xl); max-width: 480px; width: 100%; padding: 2rem; box-shadow: var(--shadow-2xl);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700; color: var(--text-primary);">Schedule Interview</h3>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="closeScheduleModal()" aria-label="Close dialog">&times;</button>
+        </div>
+        <form id="scheduleInterviewForm" onsubmit="handleScheduleSubmit(event)">
+            <input type="hidden" id="modalAppId" />
+            <div style="margin-bottom: 1rem;">
+                <p id="modalCandidateInfo" style="color: var(--text-secondary); font-size: 0.9rem; margin: 0;"></p>
+            </div>
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label for="interviewDateTime" class="form-label required" style="display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.375rem;">Date & Time</label>
+                <input type="datetime-local" id="interviewDateTime" class="form-input" required style="width: 100%;" />
+            </div>
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label for="interviewTopic" class="form-label" style="display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.375rem;">Topic / Focus</label>
+                <input type="text" id="interviewTopic" class="form-input" placeholder="e.g. Technical System Design & Architecture" value="Technical Round & Project Discussion" style="width: 100%;" />
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+                <button type="button" class="btn btn-outline-secondary" onclick="closeScheduleModal()">Cancel</button>
+                <button type="submit" id="confirmScheduleBtn" class="btn btn-primary">Schedule Video Call</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    async function updateAppStatus(appId, newStatus) {
+        try {
+            const res = await fetch('/api/employer/applications/' + appId + '/status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                showToast('Application updated to: ' + newStatus);
+            } else {
+                showToast(data.error || 'Failed to update status', 'error');
+            }
+        } catch (e) {
+            console.error(e);
+            showToast('Network error updating status.', 'error');
+        }
+    }
+
+    function scheduleInterviewPrompt(appId, candidateName, jobTitle) {
+        document.getElementById('modalAppId').value = appId;
+        document.getElementById('modalCandidateInfo').textContent = `Candidate: ${candidateName} — Role: ${jobTitle}`;
+        
+        // Default to tomorrow 2pm
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(14, 0, 0, 0);
+        const isoStr = new Date(tomorrow.getTime() - tomorrow.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+        document.getElementById('interviewDateTime').value = isoStr;
+
+        const modal = document.getElementById('scheduleModal');
+        modal.style.display = 'flex';
+    }
+
+    function closeScheduleModal() {
+        document.getElementById('scheduleModal').style.display = 'none';
+    }
+
+    async function handleScheduleSubmit(e) {
+        e.preventDefault();
+        const appId = document.getElementById('modalAppId').value;
+        const scheduledAt = document.getElementById('interviewDateTime').value;
+        const topic = document.getElementById('interviewTopic').value;
+        const btn = document.getElementById('confirmScheduleBtn');
+
+        btn.disabled = true;
+        btn.textContent = 'Scheduling...';
+
+        try {
+            const res = await fetch('/api/employer/interviews/schedule', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ applicationId: appId, scheduledAt, topic })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                closeScheduleModal();
+                showToast('Interview scheduled! Meeting link generated.');
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                showToast(data.error || 'Failed to schedule interview.', 'error');
+                btn.disabled = false;
+                btn.textContent = 'Schedule Video Call';
+            }
+        } catch (err) {
+            console.error(err);
+            showToast('Network error scheduling interview.', 'error');
+            btn.disabled = false;
+            btn.textContent = 'Schedule Video Call';
+        }
+    }
+</script>
+
+<%- include('../layout/footer') %>

@@ -1,0 +1,20 @@
+{
+  "name": "job-portal",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js",
+    "build": "node -e \"console.log('Build ready')\"",
+    "lint": "node --check server.js data/categoryThemes.js data/store.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "eslint": "^10.11.0"
+  }
+}
